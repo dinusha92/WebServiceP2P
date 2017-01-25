@@ -18,7 +18,7 @@ public class Utility {
 
     public static String sendTcpToBootstrapServer(String message, String ip, int port) throws IOException {
 
-          DatagramSocket sock = new DatagramSocket(port);
+          DatagramSocket sock = new DatagramSocket(45654);
 
         DatagramPacket packet = new DatagramPacket(message.getBytes(), message.getBytes().length,InetAddress.getByName(ip), port);
         sock.send(packet);
