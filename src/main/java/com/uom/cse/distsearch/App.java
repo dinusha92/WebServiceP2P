@@ -1,12 +1,5 @@
-package com.uom.cse.distsearch.app;
+package com.uom.cse.distsearch;
 
-import com.uom.cse.distsearch.dto.NodeInfo;
-import com.uom.cse.distsearch.dto.Query;
-import com.uom.cse.distsearch.dto.Result;
-import com.uom.cse.distsearch.util.Command;
-import com.uom.cse.distsearch.util.IPAddressValidator;
-import com.uom.cse.distsearch.util.MovieList;
-import com.uom.cse.distsearch.util.Utility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,13 +15,13 @@ import java.util.*;
 /**
  * @author kasun
  */
-public class Node {
+public class App {
     /**
      * Logger to log the events.
      */
-    private static final Logger LOGGER = LoggerFactory.getLogger(Node.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(App.class);
 
-    //private final List<NodeInfo> peerList = new ArrayList<>();
+    //private final List<Node> peerList = new ArrayList<>();
 
     private final List<Query> queryList = new ArrayList<>();
 
@@ -36,16 +29,16 @@ public class Node {
 
     public int bootstrapPort;
 
-    public NodeInfo currentNode,successor, predecessor;
+    public Node currentNode,successor, predecessor;
 
     private static class InstanceHolder {
-        private static Node instance = new Node();
+        private static App instance = new App();
     }
 
-    private Node() {
+    private App() {
     }
 
-    public static Node getInstance() {
+    public static App getInstance() {
         return InstanceHolder.instance;
     }
 
@@ -54,14 +47,14 @@ public class Node {
      *
      * @return
      */
-    static Node createInstance() {
-        return new Node();
+    static App createInstance() {
+        return new App();
     }
 
-    public synchronized void pJoin(NodeInfo info) {
+    public synchronized void pJoin(Node info) {
 //        // Validation
 //        if (Objects.isNull(info)) {
-//            throw new IllegalArgumentException("NodeInfo cannot be null");
+//            throw new IllegalArgumentException("Node cannot be null");
 //        }
 //        if (Objects.equals(info.getIp(), currentNode.getIp()) && info.getPort() == currentNode.getPort()) {
 //            throw new IllegalArgumentException("Cannot add this node as a peer of itself");
@@ -69,7 +62,7 @@ public class Node {
 //
 ////        // State check
 ////        if (Objects.isNull(currentNode)) {
-////            throw new InvalidStateException("Node is not registered in the bootstrap server");
+////            throw new InvalidStateException("App is not registered in the bootstrap server");
 ////        }
 //
 ////        LOGGER.debug("Adding {} as a peer of {}", info, currentNode);
@@ -81,10 +74,10 @@ public class Node {
         post(predecessor.url() + "pjoin", currentNode);
     }
 
-    public synchronized void sJoin(NodeInfo neighbour) {
+    public synchronized void sJoin(Node neighbour) {
 //        // Validation
 //        if (Objects.isNull(neighbour)) {
-//            throw new IllegalArgumentException("NodeInfo cannot be null");
+//            throw new IllegalArgumentException("Node cannot be null");
 //        }
 //        if (Objects.equals(neighbour.getIp(), currentNode.getIp()) && neighbour.getPort() == currentNode.getPort()) {
 //            throw new IllegalArgumentException("Cannot add this node as a peer of itself");
@@ -92,7 +85,7 @@ public class Node {
 
 //        // State check
 //        if (Objects.isNull(currentNode)) {
-//            throw new InvalidStateException("Node is not registered in the bootstrap server");
+//            throw new InvalidStateException("App is not registered in the bootstrap server");
 //        }
 
 //        LOGGER.debug("Adding {} as a peer of {}", info, currentNode);
@@ -108,15 +101,15 @@ public class Node {
 //        String final_reply = length_final  + reply;
 //        send(new Communicator(receiver.getIp(),receiver.getPort(),final_reply));
     }
-    public synchronized void leave(NodeInfo info) {
+    public synchronized void leave(Node info) {
         // Validation
         if (Objects.isNull(info)) {
-            throw new IllegalArgumentException("NodeInfo cannot be null");
+            throw new IllegalArgumentException("Node cannot be null");
         }
 
         // State check
         if (Objects.isNull(currentNode)) {
-            throw new InvalidStateException("Node is not registered in the bootstrap server");
+            throw new InvalidStateException("App is not registered in the bootstrap server");
         }
 
         LOGGER.debug("Removing {} from the peer list of {}", info, currentNode);
@@ -137,7 +130,7 @@ public class Node {
 
         // State check
         if (Objects.isNull(currentNode)) {
-            throw new InvalidStateException("Node is not registered in the bootstrap server");
+            throw new InvalidStateException("App is not registered in the bootstrap server");
         }
 
         LOGGER.debug("Searching for {} on {}", name, currentNode);
@@ -152,7 +145,7 @@ public class Node {
 
 
         // Search within myself
-        NodeInfo sender = qry.getSender();
+        Node sender = qry.getSender();
         List<String> results = movieList.search(qry.getQuery());
 
         Result result = new Result();
@@ -165,7 +158,7 @@ public class Node {
         post(qry.getOrigin().url() + "results", result);
 
         // Spread to the peers
-//        for (NodeInfo peer : peerList) {
+//        for (Node peer : peerList) {
 //            // Don't send to the sender again
 //            if (!Objects.equals(peer, sender)) {
 //                post(peer.url() + "search", qry);
@@ -181,7 +174,7 @@ public class Node {
 
         // State check
         if (Objects.isNull(currentNode)) {
-            throw new InvalidStateException("Node is not registered in the bootstrap server");
+            throw new InvalidStateException("App is not registered in the bootstrap server");
         }
 
         if (queryList.contains(query)) {
@@ -194,7 +187,7 @@ public class Node {
         // Increase the number of hops by one
         query.setHops(query.getHops() + 1);
 
-        NodeInfo sender = query.getSender();
+        Node sender = query.getSender();
 
         List<String> results = movieList.search(query.getQuery());
 
@@ -208,7 +201,7 @@ public class Node {
         post(query.getOrigin().url() + "results", result);
 
         // Spread to the peers
-//        for (NodeInfo peer : peerList) {
+//        for (Node peer : peerList) {
 //            if (!peer.equals(sender)) {
 //                LOGGER.debug("Sending request to {}", peer);
 //                post(peer.url() + "search", query);
@@ -222,39 +215,39 @@ public class Node {
             throw new IllegalArgumentException("Bootstrap server ip cannot be null");
         }
         if (Objects.isNull(nodeIP)) {
-            throw new IllegalArgumentException("Node ip cannot be null");
+            throw new IllegalArgumentException("App ip cannot be null");
         }
         if (Objects.isNull(username) || "".equals(username.trim())) {
             throw new IllegalArgumentException("username cannot be null or empty");
         }
-        if (!IPAddressValidator.validate(serverIP)) {
-            throw new IllegalArgumentException("Bootstrap server ip is not valid");
-        }
-        if (!IPAddressValidator.validate(nodeIP)) {
-            throw new IllegalArgumentException("Node ip is not valid");
-        }
-
-//        // State check
-//        if (!Objects.isNull(currentNode)) {
-//            throw new InvalidStateException("Node is already registered.");
+//        if (!IPAddressValidator.validate(serverIP)) {
+//            throw new IllegalArgumentException("Bootstrap server ip is not valid");
 //        }
+//        if (!IPAddressValidator.validate(nodeIP)) {
+//            throw new IllegalArgumentException("Node ip is not valid");
+//        }
+
+        // State check
+        if (!Objects.isNull(currentNode)) {
+            throw new InvalidStateException("App is already registered.");
+        }
 
         this.bootstrapHost = serverIP;
         this.bootstrapPort = serverPort;
-        this.currentNode = new NodeInfo(nodeIP, port, username);
 
         // Generate the command
         String message = String.format(" REG %s %d %s", nodeIP, port, username);
         message = String.format("%04d", (message.length() + 4)) + message;
 
         try {
-            String result = Utility.sendTcpToBootstrapServer(message, this.bootstrapHost, this.bootstrapPort);
+            String result = Utility.sendUdpToBootstrapServer(message, this.bootstrapHost, this.bootstrapPort);
 
             LOGGER.debug("Connect response is {}", result);
             StringTokenizer tokenizer = new StringTokenizer(result, " ");
             String length = tokenizer.nextToken();
             String command = tokenizer.nextToken();
             if (Command.REGOK.equals(command)) {
+                this.currentNode = new Node(nodeIP, port, username);
                 int no_nodes = Integer.parseInt(tokenizer.nextToken());
 
                 switch (no_nodes) {
@@ -271,7 +264,7 @@ public class Node {
                         // TODO: Test the following line
                         //String userName = tokenizer.nextToken();
 
-                        NodeInfo nodeInfo = new NodeInfo(ipAddress, portNumber);
+                        Node nodeInfo = new Node(ipAddress, portNumber);
                         // JOIN to first node
                         pJoin(nodeInfo);
                         sJoin(currentNode);
@@ -280,7 +273,7 @@ public class Node {
                     default:
 
                         LOGGER.debug("{} nodes registered", no_nodes);
-                        List<NodeInfo> returnedNodes = new ArrayList<>();
+                        List<Node> returnedNodes = new ArrayList<>();
 
                         // Select random 2 nodes
                         for (int i = 0; i < no_nodes; i++) {
@@ -290,14 +283,14 @@ public class Node {
 
                             LOGGER.debug(String.format("%s:%s - %s", host, hostPost, userID));
 
-                            NodeInfo node = new NodeInfo(host, Integer.parseInt(hostPost), userID);
+                            Node node = new Node(host, Integer.parseInt(hostPost), userID);
                             returnedNodes.add(node);
                         }
 
                         Collections.shuffle(returnedNodes);
 
-                        NodeInfo nodeA = returnedNodes.get(0);
-                        NodeInfo nodeB = returnedNodes.get(1);
+                        Node nodeA = returnedNodes.get(0);
+                        Node nodeB = returnedNodes.get(1);
 
                         pJoin(nodeA);
                         post(nodeA.url() + "pJoin", this.currentNode);
@@ -312,7 +305,7 @@ public class Node {
                         return false;
 
                     case 9997:
-                        LOGGER.error("Failed to register. This ip and port is already used by another Node.");
+                        LOGGER.error("Failed to register. This ip and port is already used by another App.");
                         this.currentNode = null;
                         return false;
 
@@ -343,25 +336,25 @@ public class Node {
     public synchronized boolean disconnect() {
         // State check
         if (Objects.isNull(currentNode)) {
-            throw new InvalidStateException("Node is not registered in the bootstrap server");
+            throw new InvalidStateException("App is not registered in the bootstrap server");
         }
 
         // Update other nodes
 //        final int peerSize = peerList.size();
 //        for (int i = 0; i < peerSize; i++) {
-//            NodeInfo on = peerList.get(i);
+//            Node on = peerList.get(i);
 //            if (on.equals(currentNode)) {
 //                continue;
 //            }
 //            for (int j = 0; j < peerSize; j++) {
-//                NodeInfo node = peerList.get(j);
+//                Node node = peerList.get(j);
 //                if (i != j) {
 //                    post(on.url() + "pJoin", node);
 //                }
 //            }
 //        }
 //
-//        for (NodeInfo peer : peerList) {
+//        for (Node peer : peerList) {
 //            //send leave msg
 //            post(peer.url() + "leave", currentNode);
 //        }
@@ -369,7 +362,7 @@ public class Node {
         String message = String.format(" UNREG %s %d %s", currentNode.getIp(), currentNode.getPort(), currentNode.getUsername());
         message = String.format("%04d", (message.length() + 4)) + message;
         try {
-            String result = Utility.sendTcpToBootstrapServer(message, this.bootstrapHost, this.bootstrapPort);
+            String result = Utility.sendUdpToBootstrapServer(message, this.bootstrapHost, this.bootstrapPort);
             StringTokenizer tokenizer = new StringTokenizer(result, " ");
             String length = tokenizer.nextToken();
             String command = tokenizer.nextToken();
@@ -383,10 +376,10 @@ public class Node {
         return false;
     }
 
-//    public synchronized List<NodeInfo> getPeers() {
+//    public synchronized List<Node> getPeers() {
 //        // State check
 //        if (Objects.isNull(currentNode)) {
-//            throw new InvalidStateException("Node is not registered in the bootstrap server");
+//            throw new InvalidStateException("App is not registered in the bootstrap server");
 //        }
 //        return peerList;
 //    }

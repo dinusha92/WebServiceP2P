@@ -1,4 +1,4 @@
-package com.uom.cse.distsearch.util;
+package com.uom.cse.distsearch;
 
 
 import java.io.*;
@@ -16,7 +16,7 @@ public class Utility {
     private Utility() {
     }
 
-    public static String sendTcpToBootstrapServer(String message, String ip, int port) throws IOException {
+    public static String sendUdpToBootstrapServer(String message, String ip, int port) throws IOException {
 
           DatagramSocket sock = new DatagramSocket(45654);
 

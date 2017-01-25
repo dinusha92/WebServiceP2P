@@ -1,4 +1,4 @@
-package com.uom.cse.distsearch.app;
+package com.uom.cse.distsearch;
 
 
 public class InvalidStateException extends RuntimeException {

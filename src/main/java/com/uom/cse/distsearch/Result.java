@@ -1,20 +1,20 @@
-package com.uom.cse.distsearch.dto;
+package com.uom.cse.distsearch;
 
 import java.io.Serializable;
 import java.util.List;
 
 
 public class Result implements Serializable {
-    private NodeInfo owner;
+    private Node owner;
     private List<String> movies;
     private int hops;
     private long timestamp;
 
-    public NodeInfo getOwner() {
+    public Node getOwner() {
         return owner;
     }
 
-    public void setOwner(NodeInfo owner) {
+    public void setOwner(Node owner) {
         this.owner = owner;
     }
 

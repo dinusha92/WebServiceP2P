@@ -1,7 +1,6 @@
-package com.uom.cse.distsearch.app;
+package com.uom.cse.distsearch;
 
 
-import com.uom.cse.distsearch.util.Command;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.server.ServerProperties;
 

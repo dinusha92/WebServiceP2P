@@ -1,12 +1,6 @@
-package com.uom.cse.distsearch.service;
+package com.uom.cse.distsearch;
 
 
-import com.uom.cse.distsearch.app.Node;
-import com.uom.cse.distsearch.dto.NodeInfo;
-import com.uom.cse.distsearch.dto.Query;
-import com.uom.cse.distsearch.dto.Result;
-import com.uom.cse.distsearch.util.Command;
-import com.uom.cse.distsearch.util.MovieList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +28,7 @@ public class Service {
     @Context
     private HttpServletRequest httpRequest;
 
-    private Node node = Node.getInstance();
+    private App app = App.getInstance();
 
     @Path("/movies")
     @GET
@@ -50,9 +44,9 @@ public class Service {
     @Produces(MediaType.APPLICATION_JSON)
     public Response listPeers() {
         LOGGER.debug("Request to list the connected peers");
-        List<NodeInfo> lst = new ArrayList<>();
-        lst.add(node.predecessor);
-        lst.add(node.successor);
+        List<Node> lst = new ArrayList<>();
+        lst.add(app.predecessor);
+        lst.add(app.successor);
         LOGGER.debug("PEERS {}", lst.toString());
         return Response.status(Response.Status.OK).entity(lst).build();
     }
@@ -64,7 +58,7 @@ public class Service {
         LOGGER.debug("Request to connect to the bootstrap server");
         // Connect to the Bootstrap
         Response.Status status = Response.Status.OK;
-        if (!node.connect(serverIP, serverPort, userip, httpRequest.getLocalPort(), username)) {
+        if (!app.connect(serverIP, serverPort, userip, httpRequest.getLocalPort(), username)) {
             status = Response.Status.INTERNAL_SERVER_ERROR;
         }
         // Disconnect from the Bootstrap
@@ -77,7 +71,7 @@ public class Service {
     public Response disconnect() {
         LOGGER.debug("Request to disconnect from the bootstrap server");
         Response.Status status = Response.Status.OK;
-        if (!node.disconnect()) {
+        if (!app.disconnect()) {
             status = Response.Status.INTERNAL_SERVER_ERROR;
         }
         // Disconnect from the Bootstrap
@@ -88,9 +82,9 @@ public class Service {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)
-    public Response pJoin(@NotNull NodeInfo nodeInfo) {
-        LOGGER.debug("Request to pJoin from {}", nodeInfo);
-        //node.pJoin(nodeInfo);
+    public Response pJoin(@NotNull Node node) {
+        LOGGER.debug("Request to pJoin from {}", node);
+        //app.pJoin(node);
 
 
 //        ip = tokenizer.nextToken();
@@ -102,10 +96,10 @@ public class Service {
 //        String reply = "0014 "+Command.PredecessorJOINOK+" 0";
 //        send(new Communicator(ip,port,reply));
 
-        if(node.successor!=null){
-            node.post(nodeInfo.url() + "sjoin", node.successor);
+        if(app.successor!=null){
+            app.post(node.url() + "sjoin", app.successor);
         }
-        node.successor=nodeInfo;
+        app.successor= node;
         return Response.status(Response.Status.OK).entity(Command.JOINOK).build();
     }
 
@@ -113,9 +107,9 @@ public class Service {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)
-    public Response sJoin(@NotNull NodeInfo nodeInfo) {
-        LOGGER.debug("Request to pJoin from {}", nodeInfo);
-        node.pJoin(nodeInfo);
+    public Response sJoin(@NotNull Node node) {
+        LOGGER.debug("Request to pJoin from {}", node);
+        app.pJoin(node);
 //        ip = tokenizer.nextToken();
 //        port = Integer.parseInt(tokenizer.nextToken());
 //        predecessorConnect(new Neighbour(ip,port,""));
@@ -126,9 +120,9 @@ public class Service {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)
-    public Response leave(@NotNull NodeInfo nodeInfo) {
-        LOGGER.debug("Request to leave from {}", nodeInfo);
-        node.leave(nodeInfo);
+    public Response leave(@NotNull Node node) {
+        LOGGER.debug("Request to leave from {}", node);
+        app.leave(node);
         return Response.status(Response.Status.OK).entity(Command.LEAVEOK).build();
     }
 
@@ -138,7 +132,7 @@ public class Service {
     public Response searchuser(@NotNull @QueryParam("query") String query) {
         LOGGER.debug("Request to search {}", query);
         MovieList movieList = MovieList.getInstance(context.getRealPath("/WEB-INF/movies.txt"));
-        node.startSearch(movieList, query);
+        app.startSearch(movieList, query);
         return Response.status(Response.Status.OK).entity(Command.SEROK).build();
     }
 
@@ -149,7 +143,7 @@ public class Service {
     public Response search(@NotNull @Encoded Query query) {
         //LOGGER.debug("Request to search {} from {}", query.getQueryInfo().getQuery(), query.getSender());
         MovieList movieList = MovieList.getInstance(context.getRealPath("/WEB-INF/movies.txt"));
-        node.search(movieList, query);
+        app.search(movieList, query);
         return Response.status(Response.Status.OK).entity(Command.SEROK).build();
     }
 

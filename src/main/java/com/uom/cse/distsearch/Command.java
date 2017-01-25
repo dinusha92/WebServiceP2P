@@ -1,4 +1,4 @@
-package com.uom.cse.distsearch.util;
+package com.uom.cse.distsearch;
 
 /**
  * @author kasun

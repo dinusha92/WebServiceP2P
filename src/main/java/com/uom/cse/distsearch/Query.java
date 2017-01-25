@@ -1,14 +1,13 @@
-package com.uom.cse.distsearch.dto;
+package com.uom.cse.distsearch;
 
-import com.uom.cse.distsearch.app.Node;
 import java.io.Serializable;
 
 
 public class Query implements Serializable {
     
     private int hops;
-    private NodeInfo sender;
-    private NodeInfo origin;
+    private Node sender;
+    private Node origin;
     private String query;
     private long timestamp;
 
@@ -21,19 +20,19 @@ public class Query implements Serializable {
         this.hops = hops;
     }
 
-    public NodeInfo getSender() {
+    public Node getSender() {
         return sender;
     }
 
-    public void setSender(NodeInfo sender) {
+    public void setSender(Node sender) {
         this.sender = sender;
     }
     
-        public NodeInfo getOrigin() {
+        public Node getOrigin() {
         return origin;
     }
 
-    public void setOrigin(NodeInfo origin) {
+    public void setOrigin(Node origin) {
         this.origin = origin;
     }
 

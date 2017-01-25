@@ -1,4 +1,4 @@
-package com.uom.cse.distsearch.util;
+package com.uom.cse.distsearch;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

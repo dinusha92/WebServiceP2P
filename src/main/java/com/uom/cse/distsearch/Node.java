@@ -1,22 +1,22 @@
-package com.uom.cse.distsearch.dto;
+package com.uom.cse.distsearch;
 
 import java.io.Serializable;
 
-public class NodeInfo implements Serializable {
+public class Node implements Serializable {
     private String ip;
     private int port;
     private String username;
     
-    public NodeInfo() {
+    public Node() {
 		// TODO Auto-generated constructor stub
 	}
 
-    public NodeInfo(String ip, int port) {
+    public Node(String ip, int port) {
         this.ip = ip;
         this.port = port;
     }
 
-    public NodeInfo(String ip, int port, String username) {
+    public Node(String ip, int port, String username) {
         this.ip = ip;
         this.port = port;
         this.username = username;
@@ -55,10 +55,10 @@ public class NodeInfo implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        NodeInfo nodeInfo = (NodeInfo) o;
+        Node node = (Node) o;
 
-        if (port != nodeInfo.port) return false;
-        return ip.equals(nodeInfo.ip);
+        if (port != node.port) return false;
+        return ip.equals(node.ip);
 
     }
 
