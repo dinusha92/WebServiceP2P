@@ -274,7 +274,7 @@ public class Node {
                         NodeInfo nodeInfo = new NodeInfo(ipAddress, portNumber);
                         // JOIN to first node
                         pJoin(nodeInfo);
-                        sJoin(nodeInfo);
+                        sJoin(currentNode);
                         break;
 
                     default:
