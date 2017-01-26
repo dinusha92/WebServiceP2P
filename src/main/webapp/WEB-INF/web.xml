@@ -32,6 +32,6 @@
     <!-- Map all the URLs to the Jersey ServletContainer -->
     <servlet-mapping>
         <servlet-name>JerseyContainer</servlet-name>
-        <url-pattern>/node/*</url-pattern>
+        <url-pattern>/*</url-pattern>
     </servlet-mapping>
 </web-app>

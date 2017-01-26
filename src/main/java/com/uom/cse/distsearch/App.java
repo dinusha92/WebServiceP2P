@@ -87,7 +87,7 @@ public class App {
     }
 
 
-    public synchronized void startSearch(MovieList movieList, String name) {
+    public synchronized void startSearch(MovieList movieList, String name, int hopeLimit) {
         // Validation
         if (Objects.isNull(movieList)) {
             throw new IllegalArgumentException("MovieList cannot be null");
@@ -114,6 +114,7 @@ public class App {
         query.setTimestamp(System.currentTimeMillis());
         query.setHops(0);
         query.setSender(currentNode);
+        query.setHopeLimit(hopeLimit);
 //        query.setQueryInfo(info);
 
 
@@ -173,9 +174,11 @@ public class App {
         result.setTimestamp(query.getTimestamp());
 
         // Send the results
+        if(query.getHopeLimit()>=query.getHops()||results.size()>0)
         post(query.getOrigin().url() + "results", result);
 
         // Spread to the peers
+        if(query.getHopeLimit()<query.getHops())
         for (Node peer : peerList) {
             if (!peer.equals(sender)) {
                 LOGGER.debug("Sending request to {}", peer);

@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-@Path("/service")
+@Path("/")
 public class Service {
     /**
      * Logger to log the events.
@@ -100,13 +100,13 @@ public class Service {
         return Response.status(Response.Status.OK).entity(Command.LEAVEOK).build();
     }
 
-    @Path("/searchuser")
+    @Path("/search/{queryText}/{hopeLimit}")
     @GET
     @Produces(MediaType.TEXT_PLAIN)
-    public Response searchuser(@NotNull @QueryParam("query") String query) {
-        LOGGER.debug("Request to search {}", query);
+    public Response searchuser(@NotNull @PathParam("queryText") String queryText, @NotNull @PathParam("hopeLimit") int hopeLimit) {
+        LOGGER.debug("Request to search {}", queryText);
         MovieList movieList = MovieList.getInstance(context.getRealPath("/WEB-INF/movies.txt"));
-        app.startSearch(movieList, query);
+        app.startSearch(movieList, queryText,hopeLimit);
         return Response.status(Response.Status.OK).entity(Command.SEROK).build();
     }
 

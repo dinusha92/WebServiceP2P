@@ -10,6 +10,7 @@ public class Query implements Serializable {
     private Node origin;
     private String query;
     private long timestamp;
+    private int hopeLimit;
 
 
     public int getHops() {
@@ -71,5 +72,13 @@ public class Query implements Serializable {
         result = 31 * result + (query != null ? query.hashCode() : 0);
         result = 31 * result + (int) (timestamp ^ (timestamp >>> 32));
         return result;
+    }
+
+    public int getHopeLimit() {
+        return hopeLimit;
+    }
+
+    public void setHopeLimit(int hopeLimit) {
+        this.hopeLimit = hopeLimit;
     }
 }
