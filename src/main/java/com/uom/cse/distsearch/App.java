@@ -131,15 +131,20 @@ public class App {
         // Spread to the peers
         if(query.getHopeLimit()>query.getHops())
             for (Node peer : peerList) {
-                if (!peer.equals(sender)) {
                     post(peer.url() + "search", query);
                     noOfSentNodes++;
-                }
             }
 
         // Send the results
-        if(query.getHopeLimit()==query.getHops()||results.size()>0||noOfSentNodes==0)
+        if(query.getHopeLimit()==query.getHops()||results.size()>0||noOfSentNodes==0) {
             post(query.getOrigin().url() + "results", result);
+            LOGGER.info("search start");
+        }else{
+            LOGGER.info("hop limit {}",query.getHopeLimit());
+            LOGGER.info("hops  {}",query.getHops());
+            LOGGER.info("results  {}",results.size());
+            LOGGER.info("no of nodes  {}",noOfSentNodes);
+        }
     }
 
     public synchronized void search(MovieList movieList, Query query) {
@@ -180,8 +185,14 @@ public class App {
             }
         }
         // Send the results
-        if(query.getHopeLimit()==query.getHops()||results.size()>0||noOfSentNodes==0)
+        if(query.getHopeLimit()==query.getHops()||results.size()>0||noOfSentNodes==0) {
             post(query.getOrigin().url() + "results", result);
+        }else{
+            LOGGER.info("hop limit {}",query.getHopeLimit());
+            LOGGER.info("hops  {}",query.getHops());
+            LOGGER.info("results  {}",results.size());
+            LOGGER.info("no of nodes  {}",noOfSentNodes);
+        }
     }
 
     public synchronized boolean connect(String serverIP, int serverPort, String nodeIP, int port, String username) {
