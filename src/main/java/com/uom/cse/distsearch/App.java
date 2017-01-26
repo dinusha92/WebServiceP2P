@@ -129,7 +129,7 @@ public class App {
 
         int noOfSentNodes = 0;
         // Spread to the peers
-        if(query.getHopeLimit()<query.getHops())
+        if(query.getHopeLimit()>query.getHops())
             for (Node peer : peerList) {
                 if (!peer.equals(sender)) {
                     post(peer.url() + "search", query);
@@ -138,7 +138,7 @@ public class App {
             }
 
         // Send the results
-        if(query.getHopeLimit()<=query.getHops()||results.size()>0||noOfSentNodes==0)
+        if(query.getHopeLimit()==query.getHops()||results.size()>0||noOfSentNodes==0)
             post(query.getOrigin().url() + "results", result);
     }
 
@@ -172,7 +172,7 @@ public class App {
 
         int noOfSentNodes = 0;
         // Spread to the peers
-        if(query.getHopeLimit()<query.getHops())
+        if(query.getHopeLimit()>query.getHops())
         for (Node peer : peerList) {
             if (!peer.equals(sender)&&!peer.equals(query.getOrigin())) {
                 post(peer.url() + "search", query);
@@ -180,7 +180,7 @@ public class App {
             }
         }
         // Send the results
-        if(query.getHopeLimit()<=query.getHops()||results.size()>0||noOfSentNodes==0)
+        if(query.getHopeLimit()==query.getHops()||results.size()>0||noOfSentNodes==0)
             post(query.getOrigin().url() + "results", result);
     }
 
