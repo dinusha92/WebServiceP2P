@@ -15,9 +15,9 @@ import java.util.List;
 
 
 @Path("/")
-public class Service {
+public class WebService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(Service.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(WebService.class);
 
     @Context
     private ServletContext context;
@@ -27,25 +27,6 @@ public class Service {
 
     private App app = App.getInstance();
 
-    @Path("/movies")
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response listMovies() {
-        LOGGER.debug("Request to list the selected movies");
-        MovieList movieList = MovieList.getInstance(context.getRealPath("/WEB-INF/movies.txt"));
-        return Response.status(Response.Status.OK).entity(movieList.getSelectedMovies()).build();
-    }
-
-    @Path("/peers")
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response listPeers() {
-        LOGGER.debug("Request to list the connected peers");
-        List<Node> lst = app.getPeers();
-        LOGGER.debug("PEERS {}", lst.toString());
-        LOGGER.info("PEERS {}", lst.toString());
-        return Response.status(Response.Status.OK).entity(lst).build();
-    }
 
     @Path("/connect/{serverip}/{serverport}/{userip}/{username}")
     @GET
@@ -71,6 +52,27 @@ public class Service {
         }
         // Disconnect from the Bootstrap
         return Response.status(status).entity(Command.UNROK).build();
+    }
+
+
+    @Path("/movies")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response listMovies() {
+        LOGGER.debug("Request to list the selected movies");
+        MovieList movieList = MovieList.getInstance(context.getRealPath("/WEB-INF/movies.txt"));
+        return Response.status(Response.Status.OK).entity(movieList.getSelectedMovies()).build();
+    }
+
+    @Path("/peers")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response listPeers() {
+        LOGGER.debug("Request to list the connected peers");
+        List<Node> lst = app.getPeers();
+        LOGGER.debug("PEERS {}", lst.toString());
+        LOGGER.info("PEERS {}", lst.toString());
+        return Response.status(Response.Status.OK).entity(lst).build();
     }
 
     @Path("/join")
@@ -99,7 +101,7 @@ public class Service {
     public Response searchuser(@NotNull @PathParam("queryText") String queryText, @NotNull @PathParam("hopeLimit") int hopeLimit) {
         LOGGER.debug("Request to search {}", queryText);
         MovieList movieList = MovieList.getInstance(context.getRealPath("/WEB-INF/movies.txt"));
-        app.startSearch(movieList, queryText,hopeLimit);
+        app.initiateSearch(movieList, queryText,hopeLimit);
         return Response.status(Response.Status.OK).entity(Command.SEROK).build();
     }
 

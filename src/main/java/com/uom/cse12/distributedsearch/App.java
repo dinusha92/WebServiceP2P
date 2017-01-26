@@ -42,137 +42,8 @@ class App {
         return InstanceHolder.instance;
     }
 
-    synchronized void join(Node info) {
-        // Validation
-        if (Objects.isNull(info)) {
-            throw new IllegalArgumentException("Node cannot be null");
-        }
-        if (Objects.equals(info.getIp(), currentNode.getIp()) && info.getPort() == currentNode.getPort()) {
-            throw new IllegalArgumentException("Cannot add this node as a peer of itself");
-        }
-
-        // State check
-        if (Objects.isNull(currentNode)) {
-            throw new InvalidStateException("App is not registered in the bootstrap server");
-        }
-
-        LOGGER.debug("Adding {} as a peer of {}", info, currentNode);
-        if (!peerList.contains(info)) {
-            peerList.add(info);
-        }
-    }
-
-    synchronized void leave(Node info) {
-        // Validation
-        if (Objects.isNull(info)) {
-            throw new IllegalArgumentException("Node cannot be null");
-        }
-
-        // State check
-        if (Objects.isNull(currentNode)) {
-            throw new InvalidStateException("App is not registered in the bootstrap server");
-        }
-
-        LOGGER.debug("Removing {} from the peer list of {}", info, currentNode);
-        peerList.remove(info);
-    }
-
-
-    synchronized void startSearch(MovieList movieList, String name, int hopeLimit) {
-        // Validation
-        if (Objects.isNull(movieList)) {
-            throw new IllegalArgumentException("MovieList cannot be null");
-        }
-
-        if (Objects.isNull(name) || "".equals(name.trim())) {
-            throw new IllegalArgumentException("Name cannot be null or empty");
-        }
-
-
-        // State check
-        if (Objects.isNull(currentNode)) {
-            throw new InvalidStateException("App is not registered in the bootstrap server");
-        }
-
-        LOGGER.debug("Searching for {} on {}", name, currentNode);
-
-        // Construct the repository
-        //QueryInfo info = new QueryInfo();
-
-        Query query = new Query();
-        query.setOrigin(currentNode);
-        query.setQuery(name);
-        query.setHops(0);
-        query.setSender(currentNode);
-        query.setHopeLimit(hopeLimit);
-
-        // Search within myself
-        List<String> results = movieList.search(query.getQuery());
-
-        Result result = new Result();
-        result.setOwner(currentNode);
-        result.setMovies(results);
-        result.setHops(0);
-
-
-        int noOfSentNodes = 0;
-        // Spread to the peers
-        if(query.getHopeLimit()>query.getHops())
-            for (Node peer : peerList) {
-                    post(peer.url() + "search", query);
-                    noOfSentNodes++;
-            }
-
-        // Send the results
-        if(query.getHopeLimit()==query.getHops()||results.size()>0||noOfSentNodes==0) {
-            post(query.getOrigin().url() + "results", result);
-        }
-    }
-
-    synchronized void search(MovieList movieList, Query query) {
-        // Validation
-        if (Objects.isNull(query) ) {
-            throw new IllegalArgumentException("Query cannot be null");
-        }
-
-        // State check
-        if (Objects.isNull(currentNode)) {
-            throw new InvalidStateException("App is not registered in the bootstrap server");
-        }
-
-
-        // Increase the number of hops by one
-        query.setHops(query.getHops() + 1);
-        query.setSender(currentNode);
-
-        Node sender = query.getSender();
-
-        List<String> results = movieList.search(query.getQuery());
-
-        Result result = new Result();
-        result.setOwner(currentNode);
-        result.setMovies(results);
-        result.setHops(query.getHops());
-
-
-
-        int noOfSentNodes = 0;
-        // Spread to the peers
-        if(query.getHopeLimit()>query.getHops())
-        for (Node peer : peerList) {
-            if (!peer.equals(sender)&&!peer.equals(query.getOrigin())) {
-                post(peer.url() + "search", query);
-                noOfSentNodes++;
-            }
-        }
-        // Send the results
-        if(query.getHopeLimit()==query.getHops()||results.size()>0||noOfSentNodes==0) {
-            post(query.getOrigin().url() + "results", result);
-        }
-    }
 
     synchronized boolean connect(String serverIP, int serverPort, String nodeIP, int port, String username) {
-        LOGGER.info("Connect-app");
         // Validate
         if (Objects.isNull(serverIP)) {
             throw new IllegalArgumentException("Bootstrap server ip cannot be null");
@@ -288,6 +159,7 @@ class App {
         }
     }
 
+
     synchronized boolean disconnect() {
         // State check
         if (Objects.isNull(currentNode)) {
@@ -330,6 +202,26 @@ class App {
         }
         return false;
     }
+    synchronized void join(Node info) {
+        // Validation
+        if (Objects.isNull(info)) {
+            throw new IllegalArgumentException("Node cannot be null");
+        }
+        if (Objects.equals(info.getIp(), currentNode.getIp()) && info.getPort() == currentNode.getPort()) {
+            throw new IllegalArgumentException("Cannot add this node as a peer of itself");
+        }
+
+        // State check
+        if (Objects.isNull(currentNode)) {
+            throw new InvalidStateException("App is not registered in the bootstrap server");
+        }
+
+        LOGGER.debug("Adding {} as a peer of {}", info, currentNode);
+        if (!peerList.contains(info)) {
+            peerList.add(info);
+        }
+    }
+
 
     synchronized List<Node> getPeers() {
         // State check
@@ -337,6 +229,112 @@ class App {
             throw new InvalidStateException("App is not registered in the bootstrap server");
         }
         return peerList;
+    }
+
+    synchronized void leave(Node info) {
+        // Validation
+        if (Objects.isNull(info)) {
+            throw new IllegalArgumentException("Node cannot be null");
+        }
+
+        // State check
+        if (Objects.isNull(currentNode)) {
+            throw new InvalidStateException("App is not registered in the bootstrap server");
+        }
+
+        LOGGER.debug("Removing {} from the peer list of {}", info, currentNode);
+        peerList.remove(info);
+    }
+
+
+    synchronized void initiateSearch(MovieList movieList, String name, int hopeLimit) {
+        // Validation
+        if (Objects.isNull(movieList)) {
+            throw new IllegalArgumentException("MovieList cannot be null");
+        }
+
+        if (Objects.isNull(name) || "".equals(name.trim())) {
+            throw new IllegalArgumentException("Name cannot be null or empty");
+        }
+
+
+        // State check
+        if (Objects.isNull(currentNode)) {
+            throw new InvalidStateException("App is not registered in the bootstrap server");
+        }
+
+        LOGGER.debug("Searching for {} on {}", name, currentNode);
+
+        Query query = new Query();
+        query.setOrigin(currentNode);
+        query.setQuery(name);
+        query.setHops(0);
+        query.setSender(currentNode);
+        query.setHopeLimit(hopeLimit);
+
+        // Search within myself
+        List<String> results = movieList.search(query.getQuery());
+
+        Result result = new Result();
+        result.setOwner(currentNode);
+        result.setMovies(results);
+        result.setHops(0);
+
+
+        int noOfSentNodes = 0;
+        // Spread to the peers
+        if(query.getHopeLimit()>query.getHops())
+            for (Node peer : peerList) {
+                    post(peer.url() + "search", query);
+                    noOfSentNodes++;
+            }
+
+        // Send the results
+        if(query.getHopeLimit()==query.getHops()||results.size()>0||noOfSentNodes==0) {
+            post(query.getOrigin().url() + "results", result);
+        }
+    }
+
+    synchronized void search(MovieList movieList, Query query) {
+        // Validation
+        if (Objects.isNull(query) ) {
+            throw new IllegalArgumentException("Query cannot be null");
+        }
+
+        // State check
+        if (Objects.isNull(currentNode)) {
+            throw new InvalidStateException("App is not registered in the bootstrap server");
+        }
+
+
+        // Increase the number of hops by one
+        query.setHops(query.getHops() + 1);
+        query.setSender(currentNode);
+
+        Node sender = query.getSender();
+
+        List<String> results = movieList.search(query.getQuery());
+
+        Result result = new Result();
+        result.setOwner(currentNode);
+        result.setMovies(results);
+        result.setHops(query.getHops());
+
+
+
+        int noOfSentNodes = 0;
+        // Spread to the peers
+        if(query.getHopeLimit()>query.getHops())
+        for (Node peer : peerList) {
+            if (!peer.equals(sender)&&!peer.equals(query.getOrigin())) {
+                post(peer.url() + "search", query);
+                noOfSentNodes++;
+            }
+        }
+        // Send the results
+        if(query.getHopeLimit()==query.getHops()||results.size()>0||noOfSentNodes==0) {
+            post(query.getOrigin().url() + "results", result);
+        }
     }
 
     private void post(final String url, final Object object) {
