@@ -27,27 +27,27 @@ Search results will be printed in $CATALINA_HOME/logs/distributed.log file.
 
 Connect the node to the bootstrap:
 ``````````````````````````````````
-    http://localhost:8080/distsearch/node/service/connect/{bootstrap_server_ip}/{bootstrap_server_port}/{user_ip}/{username}
+    http://localhost:8080/connect/{bootstrap_server_ip}/{bootstrap_server_port}/{user_ip}/{username}
 
 
 Disconnect the node:
 ````````````````````
-    http://localhost:8080/distsearch/node/service/disconnect
+    http://localhost:8080/disconnect
 
 
 List the available movies:
 ``````````````````````````
-    http://localhost:8080/distsearch/node/service/movies
+    http://localhost:8080/movies
 
 
 List the connected peers:
 `````````````````````````
-    http://localhost:8080/distsearch/node/service/peers
+    http://localhost:8080/peers
 
 
 Search for a movies in the network:
 ```````````````````````````````````
-    http://localhost:8080/distsearch/node/service/searchuser?query=movie
+    http://localhost:8080/search/{query text}/{hope limit}
 
 
 Note:

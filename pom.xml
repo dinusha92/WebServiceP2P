@@ -29,11 +29,11 @@
         </dependency>
 
         <!-- JERSEY unit testing framework -->
-        <dependency>
-            <groupId>org.glassfish.jersey.test-framework.providers</groupId>
-            <artifactId>jersey-test-framework-provider-grizzly2</artifactId>
-            <version>${jersey.version}</version>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.glassfish.jersey.test-framework.providers</groupId>-->
+            <!--<artifactId>jersey-test-framework-provider-grizzly2</artifactId>-->
+            <!--<version>${jersey.version}</version>-->
+        <!--</dependency>-->
 
         <!-- JERSEY Bean validator -->
         <dependency>
@@ -49,12 +49,12 @@
             <version>2.22.1</version>
         </dependency>
 
-        <dependency>
-            <groupId>org.testng</groupId>
-            <artifactId>testng</artifactId>
-            <version>6.8</version>
-            <scope>test</scope>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.testng</groupId>-->
+            <!--<artifactId>testng</artifactId>-->
+            <!--<version>6.8</version>-->
+            <!--<scope>test</scope>-->
+        <!--</dependency>-->
 
         <!-- Logger -->
         <dependency>
@@ -75,11 +75,11 @@
             <version>${logback.version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>com.google.code.gson</groupId>
-            <artifactId>gson</artifactId>
-            <version>2.5</version>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>com.google.code.gson</groupId>-->
+            <!--<artifactId>gson</artifactId>-->
+            <!--<version>2.5</version>-->
+        <!--</dependency>-->
 
         <dependency>
             <groupId>javax.servlet</groupId>
@@ -115,7 +115,7 @@
                 <version>2.2</version>
                 <configuration>
                     <port>45455</port>
-                    <path>/distsearch</path>
+                    <path>/</path>
                 </configuration>
             </plugin>
         </plugins>
