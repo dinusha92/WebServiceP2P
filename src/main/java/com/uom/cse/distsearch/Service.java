@@ -46,6 +46,7 @@ public class Service {
         LOGGER.debug("Request to list the connected peers");
         List<Node> lst = app.getPeers();
         LOGGER.debug("PEERS {}", lst.toString());
+        LOGGER.info("PEERS {}", lst.toString());
         return Response.status(Response.Status.OK).entity(lst).build();
     }
 
@@ -54,6 +55,9 @@ public class Service {
     @Produces(MediaType.APPLICATION_JSON)
     public Response connect(@NotNull @PathParam("serverip") String serverIP, @NotNull @PathParam("serverport") int serverPort, @NotNull @PathParam("userip") String userip, @NotNull @PathParam("username") String username) {
         LOGGER.debug("Request to connect to the bootstrap server");
+
+
+        LOGGER.info("Connect");
         // Connect to the Bootstrap
         Response.Status status = Response.Status.OK;
         if (!app.connect(serverIP, serverPort, userip, httpRequest.getLocalPort(), username)) {

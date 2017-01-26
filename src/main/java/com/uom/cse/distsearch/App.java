@@ -185,6 +185,7 @@ public class App {
     }
 
     public synchronized boolean connect(String serverIP, int serverPort, String nodeIP, int port, String username) {
+        LOGGER.info("Connect-app");
         // Validate
         if (Objects.isNull(serverIP)) {
             throw new IllegalArgumentException("Bootstrap server ip cannot be null");
@@ -237,9 +238,9 @@ public class App {
                         String ipAddress = tokenizer.nextToken();
                         int portNumber = Integer.parseInt(tokenizer.nextToken());
                         // TODO: Test the following line
-                        String userName = tokenizer.nextToken();
+                        //String userName = tokenizer.nextToken();
 
-                        Node nodeInfo = new Node(ipAddress, portNumber, userName);
+                        Node nodeInfo = new Node(ipAddress, portNumber);
                         // JOIN to first node
                         join(nodeInfo);
                         post(nodeInfo.url() + "join", new Node(nodeIP, port));

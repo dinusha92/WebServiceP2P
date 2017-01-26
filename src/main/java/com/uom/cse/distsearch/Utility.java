@@ -17,8 +17,9 @@ public class Utility {
     }
 
     public static String sendUdpToBootstrapServer(String message, String ip, int port) throws IOException {
+        LOGGER.info("Connect-udp");
 
-          DatagramSocket sock = new DatagramSocket(45654);
+        DatagramSocket sock = new DatagramSocket(45654);
 
         DatagramPacket packet = new DatagramPacket(message.getBytes(), message.getBytes().length,InetAddress.getByName(ip), port);
         sock.send(packet);
