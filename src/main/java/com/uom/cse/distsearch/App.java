@@ -174,7 +174,7 @@ public class App {
         result.setTimestamp(query.getTimestamp());
 
         // Send the results
-        if(query.getHopeLimit()>=query.getHops()||results.size()>0)
+        if(query.getHopeLimit()<=query.getHops()||results.size()>0)
         post(query.getOrigin().url() + "results", result);
 
         // Spread to the peers
