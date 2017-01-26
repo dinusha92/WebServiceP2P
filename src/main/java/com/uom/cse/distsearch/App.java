@@ -139,6 +139,10 @@ public class App {
         if(query.getHopeLimit()==query.getHops()||results.size()>0||noOfSentNodes==0) {
             post(query.getOrigin().url() + "results", result);
             LOGGER.info("search start");
+            LOGGER.info("hop limit {}",query.getHopeLimit());
+            LOGGER.info("hops  {}",query.getHops());
+            LOGGER.info("results  {}",results.size());
+            LOGGER.info("no of nodes  {}",noOfSentNodes);
         }else{
             LOGGER.info("hop limit {}",query.getHopeLimit());
             LOGGER.info("hops  {}",query.getHops());
@@ -365,7 +369,7 @@ public class App {
     }
 
     private void post(final String url, final Object object) {
-        LOGGER.debug("POST URL: {}", url);
+        LOGGER.info("POST URL: {}", url);
         new Thread() {
             @Override
             public void run() {
@@ -374,9 +378,9 @@ public class App {
                     Invocation.Builder builder = target.request(MediaType.APPLICATION_JSON).accept(MediaType.TEXT_PLAIN);
                     Response response = builder.post(Entity.json(object));
                     int status = response.getStatus();
-                    LOGGER.debug("Status: {}", status);
+                    LOGGER.info("Status: {}", status);
                     Object str = response.getEntity();
-                    LOGGER.debug("Message: {}", str);
+                    LOGGER.info("Message: {}", str);
                     response.close();
                 } catch (Exception ex) {
                     LOGGER.error("Exception in sending request", ex.getMessage());

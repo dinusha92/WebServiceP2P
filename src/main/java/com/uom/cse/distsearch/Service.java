@@ -126,6 +126,7 @@ public class Service {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)
     public Response results(@NotNull Result result) {
+        LOGGER.info("res in");
         int moviesCount = result.getMovies().size();
 
         String output = String.format("Number of movies: %d\r\nMovies: %s\r\nHops: %d\r\nTime: %s millis\r\nOwner %s:%d",
