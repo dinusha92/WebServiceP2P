@@ -22,8 +22,7 @@ class App {
      */
     private static final Logger LOGGER = LoggerFactory.getLogger(App.class);
 
-    private final List<Node> peerList = new ArrayList<>();
-
+    private final List<Node> neighbours = new ArrayList<>();
 
     private String bootstrapHost;
 
@@ -41,7 +40,6 @@ class App {
     static App getInstance() {
         return InstanceHolder.instance;
     }
-
 
     synchronized boolean connect(String serverIP, int serverPort, String nodeIP, int port, String username) {
         // Validate
@@ -98,7 +96,6 @@ class App {
                         break;
 
                     default:
-
                         LOGGER.debug("{} nodes registered", no_nodes);
                         List<Node> returnedNodes = new ArrayList<>();
 
@@ -167,21 +164,21 @@ class App {
         }
 
         // Update other nodes
-        final int peerSize = peerList.size();
+        final int peerSize = neighbours.size();
         for (int i = 0; i < peerSize; i++) {
-            Node on = peerList.get(i);
+            Node on = neighbours.get(i);
             if (on.equals(currentNode)) {
                 continue;
             }
             for (int j = 0; j < peerSize; j++) {
-                Node node = peerList.get(j);
+                Node node = neighbours.get(j);
                 if (i != j) {
                     post(on.url() + "join", node);
                 }
             }
         }
 
-        for (Node peer : peerList) {
+        for (Node peer : neighbours) {
             //send leave msg
             post(peer.url() + "leave", currentNode);
         }
@@ -217,8 +214,8 @@ class App {
         }
 
         LOGGER.debug("Adding {} as a peer of {}", info, currentNode);
-        if (!peerList.contains(info)) {
-            peerList.add(info);
+        if (!neighbours.contains(info)) {
+            neighbours.add(info);
         }
     }
 
@@ -228,7 +225,7 @@ class App {
         if (Objects.isNull(currentNode)) {
             throw new InvalidStateException("App is not registered in the bootstrap server");
         }
-        return peerList;
+        return neighbours;
     }
 
     synchronized void leave(Node info) {
@@ -243,7 +240,7 @@ class App {
         }
 
         LOGGER.debug("Removing {} from the peer list of {}", info, currentNode);
-        peerList.remove(info);
+        neighbours.remove(info);
     }
 
 
@@ -284,7 +281,7 @@ class App {
         int noOfSentNodes = 0;
         // Spread to the peers
         if(query.getHopeLimit()>query.getHops())
-            for (Node peer : peerList) {
+            for (Node peer : neighbours) {
                     post(peer.url() + "search", query);
                     noOfSentNodes++;
             }
@@ -325,7 +322,7 @@ class App {
         int noOfSentNodes = 0;
         // Spread to the peers
         if(query.getHopeLimit()>query.getHops())
-        for (Node peer : peerList) {
+        for (Node peer : neighbours) {
             if (!peer.equals(sender)&&!peer.equals(query.getOrigin())) {
                 post(peer.url() + "search", query);
                 noOfSentNodes++;
