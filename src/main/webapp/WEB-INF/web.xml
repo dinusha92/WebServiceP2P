@@ -19,7 +19,7 @@
         <!-- Define the ResourceConfig class -->
         <init-param>
             <param-name>javax.ws.rs.Application</param-name>
-            <param-value>com.uom.cse.distsearch.app.WebServiceConfiguration</param-value>
+            <param-value>com.uom.cse.distsearch.WebServiceConfiguration</param-value>
         </init-param>
         <init-param>
             <param-name>jersey.config.beanValidation.enableOutputValidationErrorEntity.server</param-name>
