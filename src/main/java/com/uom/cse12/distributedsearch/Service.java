@@ -1,4 +1,4 @@
-package com.uom.cse.distsearch;
+package com.uom.cse12.distributedsearch;
 
 
 import org.slf4j.Logger;
@@ -11,15 +11,12 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.ArrayList;
 import java.util.List;
 
 
 @Path("/")
 public class Service {
-    /**
-     * Logger to log the events.
-     */
+
     private static final Logger LOGGER = LoggerFactory.getLogger(Service.class);
 
     @Context
@@ -52,24 +49,20 @@ public class Service {
 
     @Path("/connect/{serverip}/{serverport}/{userip}/{username}")
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.TEXT_PLAIN)
     public Response connect(@NotNull @PathParam("serverip") String serverIP, @NotNull @PathParam("serverport") int serverPort, @NotNull @PathParam("userip") String userip, @NotNull @PathParam("username") String username) {
-        LOGGER.debug("Request to connect to the bootstrap server");
-
-
-        LOGGER.info("Connect");
         // Connect to the Bootstrap
         Response.Status status = Response.Status.OK;
         if (!app.connect(serverIP, serverPort, userip, httpRequest.getLocalPort(), username)) {
             status = Response.Status.INTERNAL_SERVER_ERROR;
         }
-        // Disconnect from the Bootstrap
-        return Response.status(status).build();
+
+        return Response.status(status).entity(Command.REGOK).build();
     }
 
     @Path("/disconnect")
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.TEXT_PLAIN)
     public Response disconnect() {
         LOGGER.debug("Request to disconnect from the bootstrap server");
         Response.Status status = Response.Status.OK;
@@ -77,7 +70,7 @@ public class Service {
             status = Response.Status.INTERNAL_SERVER_ERROR;
         }
         // Disconnect from the Bootstrap
-        return Response.status(status).build();
+        return Response.status(status).entity(Command.UNROK).build();
     }
 
     @Path("/join")
@@ -128,8 +121,8 @@ public class Service {
     public Response results(@NotNull Result result) {
         int moviesCount = result.getMovies().size();
 
-        String output = String.format("Number of movies: %d\r\nMovies: %s\r\nHops: %d\r\nTime: %s millis\r\nOwner %s:%d",
-                moviesCount, result.getMovies().toString(), result.getHops(), (System.currentTimeMillis() - result.getTimestamp()), result.getOwner().getIp(), result.getOwner().getPort());
+        String output = String.format("Number of movies: %d\r\nMovies: %s\r\nHops: %d\r\nOwner %s:%d",
+                moviesCount, result.getMovies().toString(), result.getHops(), result.getOwner().getIp(), result.getOwner().getPort());
 
         LOGGER.info(output);
         return Response.status(Response.Status.OK).entity("OK").build();

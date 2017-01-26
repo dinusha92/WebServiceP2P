@@ -1,11 +1,11 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.uom.cse</groupId>
-    <artifactId>distsearch</artifactId>
+    <groupId>com.uom.cse12</groupId>
+    <artifactId>distributedsearch</artifactId>
     <packaging>war</packaging>
     <version>1.0-SNAPSHOT</version>
-    <name>distsearch Maven Webapp</name>
+    <name>distributed search Web-app</name>
     <url>http://maven.apache.org</url>
 
     <properties>
@@ -28,13 +28,6 @@
             <version>${jersey.version}</version>
         </dependency>
 
-        <!-- JERSEY unit testing framework -->
-        <!--<dependency>-->
-            <!--<groupId>org.glassfish.jersey.test-framework.providers</groupId>-->
-            <!--<artifactId>jersey-test-framework-provider-grizzly2</artifactId>-->
-            <!--<version>${jersey.version}</version>-->
-        <!--</dependency>-->
-
         <!-- JERSEY Bean validator -->
         <dependency>
             <groupId>org.glassfish.jersey.ext</groupId>
@@ -48,13 +41,6 @@
             <artifactId>jersey-media-json-jackson</artifactId>
             <version>2.22.1</version>
         </dependency>
-
-        <!--<dependency>-->
-            <!--<groupId>org.testng</groupId>-->
-            <!--<artifactId>testng</artifactId>-->
-            <!--<version>6.8</version>-->
-            <!--<scope>test</scope>-->
-        <!--</dependency>-->
 
         <!-- Logger -->
         <dependency>
@@ -89,10 +75,6 @@
         </dependency>
 
     </dependencies>
-    
-    
-
-
 
 
     <build>

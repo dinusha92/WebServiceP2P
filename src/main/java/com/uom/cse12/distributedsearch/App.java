@@ -1,4 +1,4 @@
-package com.uom.cse.distsearch;
+package com.uom.cse12.distributedsearch;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,12 +10,13 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.util.*;
 
-/**
- * @author kasun
- */
-public class App {
+
+class App {
     /**
      * Logger to log the events.
      */
@@ -23,11 +24,10 @@ public class App {
 
     private final List<Node> peerList = new ArrayList<>();
 
-    //private final List<QueryInfo> queryList = new ArrayList<>();
 
-    public String bootstrapHost;
+    private String bootstrapHost;
 
-    public int bootstrapPort;
+    private int bootstrapPort;
 
     private Node currentNode;
 
@@ -38,20 +38,11 @@ public class App {
     private App() {
     }
 
-    public static App getInstance() {
+    static App getInstance() {
         return InstanceHolder.instance;
     }
 
-    /**
-     * Only use it for testing purposes.
-     *
-     * @return
-     */
-    static App createInstance() {
-        return new App();
-    }
-
-    public synchronized void join(Node info) {
+    synchronized void join(Node info) {
         // Validation
         if (Objects.isNull(info)) {
             throw new IllegalArgumentException("Node cannot be null");
@@ -71,7 +62,7 @@ public class App {
         }
     }
 
-    public synchronized void leave(Node info) {
+    synchronized void leave(Node info) {
         // Validation
         if (Objects.isNull(info)) {
             throw new IllegalArgumentException("Node cannot be null");
@@ -87,7 +78,7 @@ public class App {
     }
 
 
-    public synchronized void startSearch(MovieList movieList, String name, int hopeLimit) {
+    synchronized void startSearch(MovieList movieList, String name, int hopeLimit) {
         // Validation
         if (Objects.isNull(movieList)) {
             throw new IllegalArgumentException("MovieList cannot be null");
@@ -111,20 +102,17 @@ public class App {
         Query query = new Query();
         query.setOrigin(currentNode);
         query.setQuery(name);
-        query.setTimestamp(System.currentTimeMillis());
         query.setHops(0);
         query.setSender(currentNode);
         query.setHopeLimit(hopeLimit);
 
         // Search within myself
-        Node sender = query.getSender();
         List<String> results = movieList.search(query.getQuery());
 
         Result result = new Result();
         result.setOwner(currentNode);
         result.setMovies(results);
         result.setHops(0);
-        result.setTimestamp(query.getTimestamp());
 
 
         int noOfSentNodes = 0;
@@ -138,20 +126,10 @@ public class App {
         // Send the results
         if(query.getHopeLimit()==query.getHops()||results.size()>0||noOfSentNodes==0) {
             post(query.getOrigin().url() + "results", result);
-            LOGGER.info("search start");
-            LOGGER.info("hop limit {}",query.getHopeLimit());
-            LOGGER.info("hops  {}",query.getHops());
-            LOGGER.info("results  {}",results.size());
-            LOGGER.info("no of nodes  {}",noOfSentNodes);
-        }else{
-            LOGGER.info("hop limit {}",query.getHopeLimit());
-            LOGGER.info("hops  {}",query.getHops());
-            LOGGER.info("results  {}",results.size());
-            LOGGER.info("no of nodes  {}",noOfSentNodes);
         }
     }
 
-    public synchronized void search(MovieList movieList, Query query) {
+    synchronized void search(MovieList movieList, Query query) {
         // Validation
         if (Objects.isNull(query) ) {
             throw new IllegalArgumentException("Query cannot be null");
@@ -175,7 +153,6 @@ public class App {
         result.setOwner(currentNode);
         result.setMovies(results);
         result.setHops(query.getHops());
-        result.setTimestamp(query.getTimestamp());
 
 
 
@@ -191,15 +168,10 @@ public class App {
         // Send the results
         if(query.getHopeLimit()==query.getHops()||results.size()>0||noOfSentNodes==0) {
             post(query.getOrigin().url() + "results", result);
-        }else{
-            LOGGER.info("hop limit {}",query.getHopeLimit());
-            LOGGER.info("hops  {}",query.getHops());
-            LOGGER.info("results  {}",results.size());
-            LOGGER.info("no of nodes  {}",noOfSentNodes);
         }
     }
 
-    public synchronized boolean connect(String serverIP, int serverPort, String nodeIP, int port, String username) {
+    synchronized boolean connect(String serverIP, int serverPort, String nodeIP, int port, String username) {
         LOGGER.info("Connect-app");
         // Validate
         if (Objects.isNull(serverIP)) {
@@ -226,7 +198,7 @@ public class App {
         message = String.format("%04d", (message.length() + 4)) + message;
 
         try {
-            String result = Utility.sendUdpToBootstrapServer(message, this.bootstrapHost, this.bootstrapPort);
+            String result = sendUdpToBootstrapServer(message, this.bootstrapHost, this.bootstrapPort);
 
             LOGGER.debug("Connect response is {}", result);
             StringTokenizer tokenizer = new StringTokenizer(result, " ");
@@ -246,8 +218,7 @@ public class App {
                         LOGGER.debug("Second node registered");
                         String ipAddress = tokenizer.nextToken();
                         int portNumber = Integer.parseInt(tokenizer.nextToken());
-                        // TODO: Test the following line
-                        //String userName = tokenizer.nextToken();
+
 
                         Node nodeInfo = new Node(ipAddress, portNumber);
                         // JOIN to first node
@@ -317,7 +288,7 @@ public class App {
         }
     }
 
-    public synchronized boolean disconnect() {
+    synchronized boolean disconnect() {
         // State check
         if (Objects.isNull(currentNode)) {
             throw new InvalidStateException("App is not registered in the bootstrap server");
@@ -346,7 +317,7 @@ public class App {
         String message = String.format(" UNREG %s %d %s", currentNode.getIp(), currentNode.getPort(), currentNode.getUsername());
         message = String.format("%04d", (message.length() + 4)) + message;
         try {
-            String result = Utility.sendUdpToBootstrapServer(message, this.bootstrapHost, this.bootstrapPort);
+            String result = sendUdpToBootstrapServer(message, this.bootstrapHost, this.bootstrapPort);
             StringTokenizer tokenizer = new StringTokenizer(result, " ");
             String length = tokenizer.nextToken();
             String command = tokenizer.nextToken();
@@ -360,7 +331,7 @@ public class App {
         return false;
     }
 
-    public synchronized List<Node> getPeers() {
+    synchronized List<Node> getPeers() {
         // State check
         if (Objects.isNull(currentNode)) {
             throw new InvalidStateException("App is not registered in the bootstrap server");
@@ -376,13 +347,34 @@ public class App {
                     WebTarget target = ClientBuilder.newClient().target(url);
                     Invocation.Builder builder = target.request(MediaType.APPLICATION_JSON).accept(MediaType.TEXT_PLAIN);
                     Response response = builder.post(Entity.json(object));
-                    int status = response.getStatus();
-                    Object str = response.getEntity();
                     response.close();
                 } catch (Exception ex) {
                     LOGGER.error("Exception in sending request", ex.getMessage());
                 }
             }
         }.start();
+    }
+
+    private  String sendUdpToBootstrapServer(String message, String ip, int port) throws IOException {
+
+        DatagramSocket sock = new DatagramSocket(45654);
+
+        DatagramPacket packet = new DatagramPacket(message.getBytes(), message.getBytes().length, InetAddress.getByName(ip), port);
+        sock.send(packet);
+        byte[] buffer = new byte[65536];
+        DatagramPacket response = new DatagramPacket(buffer, buffer.length);
+        sock.receive(response);
+        sock.close();
+
+        byte[] data = response.getData();
+        String msg = new String(data, 0, response.getLength());
+        LOGGER.info("Recieved :" + msg);
+        return msg;
+    }
+
+    private class InvalidStateException extends RuntimeException {
+        InvalidStateException(String msg) {
+            super(msg);
+        }
     }
 }

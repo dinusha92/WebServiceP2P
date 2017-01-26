@@ -1,4 +1,4 @@
-package com.uom.cse.distsearch;
+package com.uom.cse12.distributedsearch;
 
 import java.io.Serializable;
 

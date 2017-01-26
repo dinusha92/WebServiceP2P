@@ -1,4 +1,4 @@
-package com.uom.cse.distsearch;
+package com.uom.cse12.distributedsearch;
 
 import java.io.Serializable;
 
@@ -9,7 +9,6 @@ public class Query implements Serializable {
     private Node sender;
     private Node origin;
     private String query;
-    private long timestamp;
     private int hopeLimit;
 
 
@@ -29,7 +28,7 @@ public class Query implements Serializable {
         this.sender = sender;
     }
     
-        public Node getOrigin() {
+    public Node getOrigin() {
         return origin;
     }
 
@@ -45,13 +44,6 @@ public class Query implements Serializable {
         this.query = query;
     }
 
-    public long getTimestamp() {
-        return timestamp;
-    }
-
-    public void setTimestamp(long timestamp) {
-        this.timestamp = timestamp;
-    }
 
     @Override
     public boolean equals(Object o) {
@@ -60,17 +52,14 @@ public class Query implements Serializable {
 
         Query qry = (Query) o;
 
-        if (timestamp != qry.timestamp) return false;
         if (origin != null ? !origin.equals(qry.origin) : qry.origin != null) return false;
         return query != null ? query.equals(qry.query) : qry.query == null;
-
     }
 
     @Override
     public int hashCode() {
         int result = origin != null ? origin.hashCode() : 0;
         result = 31 * result + (query != null ? query.hashCode() : 0);
-        result = 31 * result + (int) (timestamp ^ (timestamp >>> 32));
         return result;
     }
 

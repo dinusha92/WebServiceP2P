@@ -1,14 +1,13 @@
-package com.uom.cse.distsearch;
+package com.uom.cse12.distributedsearch;
 
 import java.io.Serializable;
 import java.util.List;
 
 
-public class Result implements Serializable {
+class Result implements Serializable {
     private Node owner;
     private List<String> movies;
     private int hops;
-    private long timestamp;
 
     public Node getOwner() {
         return owner;
@@ -32,13 +31,5 @@ public class Result implements Serializable {
 
     public void setHops(int hops) {
         this.hops = hops;
-    }
-
-    public long getTimestamp() {
-        return timestamp;
-    }
-
-    public void setTimestamp(long timestamp) {
-        this.timestamp = timestamp;
     }
 }

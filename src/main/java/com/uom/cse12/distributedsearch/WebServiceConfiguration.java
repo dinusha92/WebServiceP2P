@@ -1,14 +1,9 @@
-package com.uom.cse.distsearch;
+package com.uom.cse12.distributedsearch;
 
 
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.server.ServerProperties;
 
-/**
- * This class register the JAX-RS service providers package.
- * <p>
- * Created by gobinath on 11/27/15.
- */
 public class WebServiceConfiguration extends ResourceConfig {
     public WebServiceConfiguration() {
         // Now you can expect validation errors to be sent to the client.
