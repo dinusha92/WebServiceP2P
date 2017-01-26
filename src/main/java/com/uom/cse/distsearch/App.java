@@ -369,7 +369,6 @@ public class App {
     }
 
     private void post(final String url, final Object object) {
-        LOGGER.info("POST URL: {}", url);
         new Thread() {
             @Override
             public void run() {
@@ -378,9 +377,7 @@ public class App {
                     Invocation.Builder builder = target.request(MediaType.APPLICATION_JSON).accept(MediaType.TEXT_PLAIN);
                     Response response = builder.post(Entity.json(object));
                     int status = response.getStatus();
-                    LOGGER.info("Status: {}", status);
                     Object str = response.getEntity();
-                    LOGGER.info("Message: {}", str);
                     response.close();
                 } catch (Exception ex) {
                     LOGGER.error("Exception in sending request", ex.getMessage());
