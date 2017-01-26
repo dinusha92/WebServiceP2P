@@ -130,12 +130,12 @@ public class App {
         int noOfSentNodes = 0;
         // Spread to the peers
         if(query.getHopeLimit()<query.getHops())
-        for (Node peer : peerList) {
-            // Don't send to the sender again
-            if (!Objects.equals(peer, sender)) {
-                noOfSentNodes++;
+            for (Node peer : peerList) {
+                if (!peer.equals(sender)) {
+                    post(peer.url() + "search", query);
+                    noOfSentNodes++;
+                }
             }
-        }
 
         // Send the results
         if(query.getHopeLimit()<=query.getHops()||results.size()>0||noOfSentNodes==0)
