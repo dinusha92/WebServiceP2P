@@ -257,7 +257,7 @@ public class App {
                             String hostPost = tokenizer.nextToken();
                             //String userID = tokenizer.nextToken();
 
-                            LOGGER.debug(String.format("%s:%s - %s", host, hostPost));
+                            LOGGER.debug(String.format("%s:%s ", host, hostPost));
 
                             Node node = new Node(host, Integer.parseInt(hostPost));
                             returnedNodes.add(node);
