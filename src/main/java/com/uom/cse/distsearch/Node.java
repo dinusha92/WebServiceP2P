@@ -57,7 +57,7 @@ public class Node implements Serializable {
 
         Node node = (Node) o;
 
-        return port != node.port||!ip.equals(node.ip);
+        return port == node.port&&ip.equals(node.ip);
 
     }
 
