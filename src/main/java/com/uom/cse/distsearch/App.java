@@ -162,6 +162,7 @@ public class App {
 
         // Increase the number of hops by one
         query.setHops(query.getHops() + 1);
+        query.setSender(currentNode);
 
         Node sender = query.getSender();
 
