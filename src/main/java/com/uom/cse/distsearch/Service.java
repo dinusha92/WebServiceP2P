@@ -44,9 +44,7 @@ public class Service {
     @Produces(MediaType.APPLICATION_JSON)
     public Response listPeers() {
         LOGGER.debug("Request to list the connected peers");
-        List<Node> lst = new ArrayList<>();
-        lst.add(app.predecessor);
-        lst.add(app.successor);
+        List<Node> lst = app.getPeers();
         LOGGER.debug("PEERS {}", lst.toString());
         return Response.status(Response.Status.OK).entity(lst).build();
     }
@@ -78,41 +76,13 @@ public class Service {
         return Response.status(status).build();
     }
 
-    @Path("/pjoin")
+    @Path("/join")
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)
-    public Response pJoin(@NotNull Node node) {
-        LOGGER.debug("Request to pJoin from {}", node);
-        //app.pJoin(node);
-
-
-//        ip = tokenizer.nextToken();
-//        port = Integer.parseInt(tokenizer.nextToken());
-//        if(successor!=null){
-//            successorConnect(new Neighbour(ip,port,""),successor);
-//        }
-//        successor = new Neighbour(ip,port,"");
-//        String reply = "0014 "+Command.PredecessorJOINOK+" 0";
-//        send(new Communicator(ip,port,reply));
-
-        if(app.successor!=null){
-            app.post(node.url() + "sjoin", app.successor);
-        }
-        app.successor= node;
-        return Response.status(Response.Status.OK).entity(Command.JOINOK).build();
-    }
-
-    @Path("/sjoin")
-    @POST
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.TEXT_PLAIN)
-    public Response sJoin(@NotNull Node node) {
-        LOGGER.debug("Request to pJoin from {}", node);
-        app.pJoin(node);
-//        ip = tokenizer.nextToken();
-//        port = Integer.parseInt(tokenizer.nextToken());
-//        predecessorConnect(new Neighbour(ip,port,""));
+    public Response join(@NotNull Node node) {
+        LOGGER.debug("Request to join from {}", node);
+        app.join(node);
         return Response.status(Response.Status.OK).entity(Command.JOINOK).build();
     }
 
