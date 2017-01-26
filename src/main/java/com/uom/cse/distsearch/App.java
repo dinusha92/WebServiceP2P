@@ -255,11 +255,11 @@ public class App {
                         for (int i = 0; i < no_nodes; i++) {
                             String host = tokenizer.nextToken();
                             String hostPost = tokenizer.nextToken();
-                            String userID = tokenizer.nextToken();
+                            //String userID = tokenizer.nextToken();
 
-                            LOGGER.debug(String.format("%s:%s - %s", host, hostPost, userID));
+                            LOGGER.debug(String.format("%s:%s - %s", host, hostPost));
 
-                            Node node = new Node(host, Integer.parseInt(hostPost), userID);
+                            Node node = new Node(host, Integer.parseInt(hostPost));
                             returnedNodes.add(node);
                         }
 
