@@ -9,9 +9,7 @@ import java.util.*;
 
 
 public class MovieList {
-    /**
-     * Logger to log the events.
-     */
+
     private static final Logger LOGGER = LoggerFactory.getLogger(MovieList.class);
 
     private static MovieList instance;
@@ -41,7 +39,6 @@ public class MovieList {
             query = query.toLowerCase();
             for (String movie : movies) {
                 if (movie.toLowerCase().contains(query)) {
-                    // Remove the spaces
                     list.add(movie.replaceAll(" ", "_"));
                 }
             }
@@ -68,7 +65,6 @@ public class MovieList {
         for (int i = 0; i < num; i++) {
             movies.add(list.get(i));
         }
-
         return movies;
     }
 

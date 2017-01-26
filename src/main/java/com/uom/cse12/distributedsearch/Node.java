@@ -8,7 +8,6 @@ public class Node implements Serializable {
     private String username;
     
     public Node() {
-		// TODO Auto-generated constructor stub
 	}
 
     public Node(String ip, int port) {

@@ -17,9 +17,7 @@ import java.util.*;
 
 
 class App {
-    /**
-     * Logger to log the events.
-     */
+
     private static final Logger LOGGER = LoggerFactory.getLogger(App.class);
 
     private final List<Node> neighbours = new ArrayList<>();
@@ -44,32 +42,29 @@ class App {
     synchronized boolean connect(String serverIP, int serverPort, String nodeIP, int port, String username) {
         // Validate
         if (Objects.isNull(serverIP)) {
-            throw new IllegalArgumentException("Bootstrap server ip cannot be null");
+            throw new IllegalArgumentException("Bootsrap IP is null");
         }
         if (Objects.isNull(nodeIP)) {
-            throw new IllegalArgumentException("App ip cannot be null");
+            throw new IllegalArgumentException("Node IP is null");
         }
         if (Objects.isNull(username) || "".equals(username.trim())) {
-            throw new IllegalArgumentException("username cannot be null or empty");
+            throw new IllegalArgumentException("User name null");
         }
 
-        // State check
         if (!Objects.isNull(currentNode)) {
-            throw new InvalidStateException("App is already registered.");
+            throw new InvalidStateException("Node is already registered in the network.");
         }
 
         this.bootstrapHost = serverIP;
         this.bootstrapPort = serverPort;
         this.currentNode = new Node(nodeIP, port, username);
 
-        // Generate the command
         String message = String.format(" REG %s %d %s", nodeIP, port, username);
         message = String.format("%04d", (message.length() + 4)) + message;
 
         try {
             String result = sendUdpToBootstrapServer(message, this.bootstrapHost, this.bootstrapPort);
 
-            LOGGER.debug("Connect response is {}", result);
             StringTokenizer tokenizer = new StringTokenizer(result, " ");
             String length = tokenizer.nextToken();
             String command = tokenizer.nextToken();
@@ -78,28 +73,23 @@ class App {
 
                 switch (no_nodes) {
                     case 0:
-                        // This is the first node registered to the BootstrapServer.
-                        // Do nothing
-                        LOGGER.debug("First node registered");
+
+                        LOGGER.info("First node registered");
                         break;
 
                     case 1:
-                        LOGGER.debug("Second node registered");
+                        LOGGER.info("Second node registered");
                         String ipAddress = tokenizer.nextToken();
                         int portNumber = Integer.parseInt(tokenizer.nextToken());
 
 
                         Node nodeInfo = new Node(ipAddress, portNumber);
-                        // JOIN to first node
                         join(nodeInfo);
                         post(nodeInfo.url() + "join", new Node(nodeIP, port));
                         break;
 
-                    default:
-                        LOGGER.debug("{} nodes registered", no_nodes);
+                    case 2:
                         List<Node> returnedNodes = new ArrayList<>();
-
-                        // Select random 2 nodes
                         for (int i = 0; i < no_nodes; i++) {
                             String host = tokenizer.nextToken();
                             String hostPost = tokenizer.nextToken();
@@ -123,22 +113,22 @@ class App {
                         break;
 
                     case 9996:
-                        LOGGER.error("Failed to register. BootstrapServer is full.");
+                        LOGGER.error("BootstrapServer limit exceeded. Register later");
                         this.currentNode = null;
                         return false;
 
                     case 9997:
-                        LOGGER.error("Failed to register. This ip and port is already used by another App.");
+                        LOGGER.error("IP and Port used by another node");
                         this.currentNode = null;
                         return false;
 
                     case 9998:
-                        LOGGER.error("You are already registered. Please unregister first.");
+                        LOGGER.error("Already registered");
                         this.currentNode = null;
                         return false;
 
                     case 9999:
-                        LOGGER.error("Error in the command. Please fix the error");
+                        LOGGER.error("Error");
                         this.currentNode = null;
                         return false;
                 }
@@ -158,12 +148,11 @@ class App {
 
 
     synchronized boolean disconnect() {
-        // State check
+
         if (Objects.isNull(currentNode)) {
-            throw new InvalidStateException("App is not registered in the bootstrap server");
+            throw new InvalidStateException("Node is not registered in BS");
         }
 
-        // Update other nodes
         final int peerSize = neighbours.size();
         for (int i = 0; i < peerSize; i++) {
             Node on = neighbours.get(i);
@@ -179,7 +168,6 @@ class App {
         }
 
         for (Node peer : neighbours) {
-            //send leave msg
             post(peer.url() + "leave", currentNode);
         }
 
@@ -200,20 +188,7 @@ class App {
         return false;
     }
     synchronized void join(Node info) {
-        // Validation
-        if (Objects.isNull(info)) {
-            throw new IllegalArgumentException("Node cannot be null");
-        }
-        if (Objects.equals(info.getIp(), currentNode.getIp()) && info.getPort() == currentNode.getPort()) {
-            throw new IllegalArgumentException("Cannot add this node as a peer of itself");
-        }
 
-        // State check
-        if (Objects.isNull(currentNode)) {
-            throw new InvalidStateException("App is not registered in the bootstrap server");
-        }
-
-        LOGGER.debug("Adding {} as a peer of {}", info, currentNode);
         if (!neighbours.contains(info)) {
             neighbours.add(info);
         }
@@ -221,55 +196,43 @@ class App {
 
 
     synchronized List<Node> getPeers() {
-        // State check
         if (Objects.isNull(currentNode)) {
-            throw new InvalidStateException("App is not registered in the bootstrap server");
+            throw new InvalidStateException("Register the node first");
         }
         return neighbours;
     }
 
     synchronized void leave(Node info) {
-        // Validation
-        if (Objects.isNull(info)) {
-            throw new IllegalArgumentException("Node cannot be null");
-        }
 
-        // State check
         if (Objects.isNull(currentNode)) {
-            throw new InvalidStateException("App is not registered in the bootstrap server");
+            throw new InvalidStateException("Node is not in the bootstrap");
         }
 
-        LOGGER.debug("Removing {} from the peer list of {}", info, currentNode);
         neighbours.remove(info);
     }
 
 
-    synchronized void initiateSearch(MovieList movieList, String name, int hopeLimit) {
-        // Validation
+    synchronized void initiateSearch(MovieList movieList, String name, int hopLimit) {
         if (Objects.isNull(movieList)) {
-            throw new IllegalArgumentException("MovieList cannot be null");
+            throw new IllegalArgumentException("MovieList is null");
         }
 
         if (Objects.isNull(name) || "".equals(name.trim())) {
-            throw new IllegalArgumentException("Name cannot be null or empty");
+            throw new IllegalArgumentException("movie name null or empty");
         }
 
-
-        // State check
         if (Objects.isNull(currentNode)) {
-            throw new InvalidStateException("App is not registered in the bootstrap server");
+            throw new InvalidStateException("Node is not registered in the bootstrap server");
         }
 
-        LOGGER.debug("Searching for {} on {}", name, currentNode);
 
         Query query = new Query();
         query.setOrigin(currentNode);
         query.setQuery(name);
         query.setHops(0);
         query.setSender(currentNode);
-        query.setHopeLimit(hopeLimit);
+        query.setHopeLimit(hopLimit);
 
-        // Search within myself
         List<String> results = movieList.search(query.getQuery());
 
         Result result = new Result();
@@ -279,26 +242,23 @@ class App {
 
 
         int noOfSentNodes = 0;
-        // Spread to the peers
+
         if(query.getHopeLimit()>query.getHops())
             for (Node peer : neighbours) {
                     post(peer.url() + "search", query);
                     noOfSentNodes++;
             }
 
-        // Send the results
         if(query.getHopeLimit()==query.getHops()||results.size()>0||noOfSentNodes==0) {
             post(query.getOrigin().url() + "results", result);
         }
     }
 
     synchronized void search(MovieList movieList, Query query) {
-        // Validation
         if (Objects.isNull(query) ) {
             throw new IllegalArgumentException("Query cannot be null");
         }
 
-        // State check
         if (Objects.isNull(currentNode)) {
             throw new InvalidStateException("App is not registered in the bootstrap server");
         }

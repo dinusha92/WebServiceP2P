@@ -7,8 +7,6 @@ class Command {
     private Command() {
     }
 
-    static final String WEB_SERVICE_PACKAGE = "com.uom.cse.distsearch.service";
-
     static final String JOINOK = "JOINOK";
 
     static final String LEAVEOK = "LEAVEOK";

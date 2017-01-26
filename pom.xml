@@ -96,7 +96,7 @@
                 <artifactId>tomcat7-maven-plugin</artifactId>
                 <version>2.2</version>
                 <configuration>
-                    <port>45555</port>
+                    <port>45999</port>
                     <path>/</path>
                 </configuration>
             </plugin>

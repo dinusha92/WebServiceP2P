@@ -32,7 +32,7 @@ public class WebService {
     @GET
     @Produces(MediaType.TEXT_PLAIN)
     public Response connect(@NotNull @PathParam("serverip") String serverIP, @NotNull @PathParam("serverport") int serverPort, @NotNull @PathParam("userip") String userip, @NotNull @PathParam("username") String username) {
-        // Connect to the Bootstrap
+
         Response.Status status = Response.Status.OK;
         if (!app.connect(serverIP, serverPort, userip, httpRequest.getLocalPort(), username)) {
             status = Response.Status.INTERNAL_SERVER_ERROR;
@@ -50,7 +50,6 @@ public class WebService {
         if (!app.disconnect()) {
             status = Response.Status.INTERNAL_SERVER_ERROR;
         }
-        // Disconnect from the Bootstrap
         return Response.status(status).entity(Command.UNROK).build();
     }
 
@@ -95,13 +94,13 @@ public class WebService {
         return Response.status(Response.Status.OK).entity(Command.LEAVEOK).build();
     }
 
-    @Path("/search/{queryText}/{hopeLimit}")
+    @Path("/search/{queryText}/{hopLimit}")
     @GET
     @Produces(MediaType.TEXT_PLAIN)
-    public Response searchuser(@NotNull @PathParam("queryText") String queryText, @NotNull @PathParam("hopeLimit") int hopeLimit) {
+    public Response searchuser(@NotNull @PathParam("queryText") String queryText, @NotNull @PathParam("hopLimit") int hopLimit) {
         LOGGER.debug("Request to search {}", queryText);
         MovieList movieList = MovieList.getInstance(context.getRealPath("/WEB-INF/movies.txt"));
-        app.initiateSearch(movieList, queryText,hopeLimit);
+        app.initiateSearch(movieList, queryText,hopLimit);
         return Response.status(Response.Status.OK).entity(Command.SEROK).build();
     }
 
@@ -110,7 +109,6 @@ public class WebService {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)
     public Response search(@NotNull @Encoded Query query) {
-        //LOGGER.debug("Request to search {} from {}", query.getQueryInfo().getQuery(), query.getSender());
         MovieList movieList = MovieList.getInstance(context.getRealPath("/WEB-INF/movies.txt"));
         app.search(movieList, query);
         return Response.status(Response.Status.OK).entity(Command.SEROK).build();
@@ -123,7 +121,7 @@ public class WebService {
     public Response results(@NotNull Result result) {
         int moviesCount = result.getMovies().size();
 
-        String output = String.format("Number of movies: %d\r\nMovies: %s\r\nHops: %d\r\nOwner %s:%d",
+        String output = String.format("Number of movies: %d\r\nMovies: %s\r\nHops: %d\r\nFound in %s:%d",
                 moviesCount, result.getMovies().toString(), result.getHops(), result.getOwner().getIp(), result.getOwner().getPort());
 
         LOGGER.info(output);
