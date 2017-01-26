@@ -115,8 +115,6 @@ public class App {
         query.setHops(0);
         query.setSender(currentNode);
         query.setHopeLimit(hopeLimit);
-//        query.setQueryInfo(info);
-
 
         // Search within myself
         Node sender = query.getSender();
@@ -128,16 +126,20 @@ public class App {
         result.setHops(0);
         result.setTimestamp(query.getTimestamp());
 
-        // Send the results
-        post(query.getOrigin().url() + "results", result);
 
+        int noOfSentNodes = 0;
         // Spread to the peers
+        if(query.getHopeLimit()<query.getHops())
         for (Node peer : peerList) {
             // Don't send to the sender again
             if (!Objects.equals(peer, sender)) {
-                post(peer.url() + "search", query);
+                noOfSentNodes++;
             }
         }
+
+        // Send the results
+        if(query.getHopeLimit()<=query.getHops()||results.size()>0||noOfSentNodes==0)
+            post(query.getOrigin().url() + "results", result);
     }
 
     public synchronized void search(MovieList movieList, Query query) {
@@ -151,14 +153,6 @@ public class App {
             throw new InvalidStateException("App is not registered in the bootstrap server");
         }
 
-        //Query info = query.getQueryInfo();
-
-//        if (queryList.contains(info)) {
-//            // Duplicate query
-//            return;
-//        } else {
-//            queryList.add(info);
-//        }
 
         // Increase the number of hops by one
         query.setHops(query.getHops() + 1);
@@ -174,18 +168,20 @@ public class App {
         result.setHops(query.getHops());
         result.setTimestamp(query.getTimestamp());
 
-        // Send the results
-        if(query.getHopeLimit()<=query.getHops()||results.size()>0)
-        post(query.getOrigin().url() + "results", result);
 
+
+        int noOfSentNodes = 0;
         // Spread to the peers
         if(query.getHopeLimit()<query.getHops())
         for (Node peer : peerList) {
-            if (!peer.equals(sender)) {
-                LOGGER.debug("Sending request to {}", peer);
+            if (!peer.equals(sender)&&!peer.equals(query.getOrigin())) {
                 post(peer.url() + "search", query);
+                noOfSentNodes++;
             }
         }
+        // Send the results
+        if(query.getHopeLimit()<=query.getHops()||results.size()>0||noOfSentNodes==0)
+            post(query.getOrigin().url() + "results", result);
     }
 
     public synchronized boolean connect(String serverIP, int serverPort, String nodeIP, int port, String username) {
@@ -200,12 +196,6 @@ public class App {
         if (Objects.isNull(username) || "".equals(username.trim())) {
             throw new IllegalArgumentException("username cannot be null or empty");
         }
-//        if (!IPAddressValidator.validate(serverIP)) {
-//            throw new IllegalArgumentException("Bootstrap server ip is not valid");
-//        }
-//        if (!IPAddressValidator.validate(nodeIP)) {
-//            throw new IllegalArgumentException("App ip is not valid");
-//        }
 
         // State check
         if (!Objects.isNull(currentNode)) {
@@ -259,7 +249,6 @@ public class App {
                         for (int i = 0; i < no_nodes; i++) {
                             String host = tokenizer.nextToken();
                             String hostPost = tokenizer.nextToken();
-                            //String userID = tokenizer.nextToken();
 
                             LOGGER.debug(String.format("%s:%s ", host, hostPost));
 
