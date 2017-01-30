@@ -130,7 +130,7 @@ public class WebService {
     public Response results(@NotNull Result result) {
         int moviesCount = result.getMovies().size();
 
-        String output = String.format("Number of movies: %d\nMovies: %s\nHops: %d\nFound in %s:%d\nLatency: %s ms",
+        String output = String.format("Number of movies: %d\nMovies: %s\nHops: %d\nSender %s:%d\nLatency: %s ms",
                 moviesCount, result.getMovies().toString(), result.getHops(), result.getOwner().getIp(), result.getOwner().getPort(), (System.currentTimeMillis() - result.getTimestamp()));
 
         LOGGER.info(output);
