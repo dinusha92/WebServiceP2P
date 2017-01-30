@@ -236,6 +236,8 @@ class App {
         query.setHopeLimit(hopLimit);
         query.setTimestamp(System.currentTimeMillis());
 
+        queryList.add(query);
+
         List<String> results = movieList.search(query.getQueryText());
 
         Result result = new Result();
