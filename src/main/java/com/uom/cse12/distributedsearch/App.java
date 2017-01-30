@@ -20,13 +20,17 @@ class App {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(App.class);
 
-    private final List<Node> neighbours = new ArrayList<>();
-
     private String bootstrapHost;
 
     private int bootstrapPort;
 
     private Node currentNode;
+
+    private int queryIndex=0;
+
+    private final List<Node> neighbours = new ArrayList<>();
+
+    private final List<Query> queryList = new ArrayList<>();
 
     private static class InstanceHolder {
         private static App instance = new App();
@@ -228,30 +232,30 @@ class App {
 
         Query query = new Query();
         query.setOrigin(currentNode);
-        query.setQuery(name);
+        query.setQueryText(name);
         query.setHops(0);
         query.setSender(currentNode);
         query.setHopeLimit(hopLimit);
+        query.setQueryIndex(queryIndex++);
+        query.setTimestamp(System.currentTimeMillis());
 
-        List<String> results = movieList.search(query.getQuery());
+        List<String> results = movieList.search(query.getQueryText());
 
         Result result = new Result();
         result.setOwner(currentNode);
         result.setMovies(results);
         result.setHops(0);
+        result.setTimestamp(query.getTimestamp());
 
 
-        int noOfSentNodes = 0;
 
         if(query.getHopeLimit()>query.getHops())
             for (Node peer : neighbours) {
                     post(peer.url() + "search", query);
-                    noOfSentNodes++;
             }
 
-        if(query.getHopeLimit()==query.getHops()||results.size()>0||noOfSentNodes==0) {
             post(query.getOrigin().url() + "results", result);
-        }
+
     }
 
     synchronized void search(MovieList movieList, Query query) {
@@ -263,6 +267,12 @@ class App {
             throw new InvalidStateException("App is not registered in the bootstrap server");
         }
 
+        if (queryList.contains(query)) {
+            LOGGER.info("Duplicate query");
+            return;
+        } else {
+            queryList.add(query);
+        }
 
         // Increase the number of hops by one
         query.setHops(query.getHops() + 1);
@@ -270,28 +280,24 @@ class App {
 
         Node sender = query.getSender();
 
-        List<String> results = movieList.search(query.getQuery());
+        List<String> results = movieList.search(query.getQueryText());
 
         Result result = new Result();
         result.setOwner(currentNode);
         result.setMovies(results);
         result.setHops(query.getHops());
+        result.setTimestamp(query.getTimestamp());
 
 
-
-        int noOfSentNodes = 0;
-        // Spread to the peers
         if(query.getHopeLimit()>query.getHops())
         for (Node peer : neighbours) {
             if (!peer.equals(sender)&&!peer.equals(query.getOrigin())) {
                 post(peer.url() + "search", query);
-                noOfSentNodes++;
             }
         }
         // Send the results
-        if(query.getHopeLimit()==query.getHops()||results.size()>0||noOfSentNodes==0) {
             post(query.getOrigin().url() + "results", result);
-        }
+
     }
 
     private void post(final String url, final Object object) {

@@ -41,6 +41,26 @@ public class WebService {
         return Response.status(status).entity(Command.REGOK).build();
     }
 
+    @Path("/search/{queryText}/{hopLimit}")
+    @GET
+    @Produces(MediaType.TEXT_PLAIN)
+    public Response search(@NotNull @PathParam("queryText") String queryText, @NotNull @PathParam("hopLimit") int hopLimit) {
+        LOGGER.debug("Request to search {}", queryText);
+        MovieList movieList = MovieList.getInstance(context.getRealPath("/WEB-INF/movies.txt"));
+        app.initiateSearch(movieList, queryText,hopLimit);
+        return Response.status(Response.Status.OK).entity(Command.SEROK).build();
+    }
+
+    @Path("/search/{queryText}")
+    @GET
+    @Produces(MediaType.TEXT_PLAIN)
+    public Response searchWithoutHops(@NotNull @PathParam("queryText") String queryText) {
+        LOGGER.debug("Request to search {}", queryText);
+        MovieList movieList = MovieList.getInstance(context.getRealPath("/WEB-INF/movies.txt"));
+        app.initiateSearch(movieList, queryText,9999999);
+        return Response.status(Response.Status.OK).entity(Command.SEROK).build();
+    }
+
     @Path("/disconnect")
     @GET
     @Produces(MediaType.TEXT_PLAIN)
@@ -52,7 +72,6 @@ public class WebService {
         }
         return Response.status(status).entity(Command.UNROK).build();
     }
-
 
     @Path("/movies")
     @GET
@@ -94,16 +113,6 @@ public class WebService {
         return Response.status(Response.Status.OK).entity(Command.LEAVEOK).build();
     }
 
-    @Path("/search/{queryText}/{hopLimit}")
-    @GET
-    @Produces(MediaType.TEXT_PLAIN)
-    public Response searchuser(@NotNull @PathParam("queryText") String queryText, @NotNull @PathParam("hopLimit") int hopLimit) {
-        LOGGER.debug("Request to search {}", queryText);
-        MovieList movieList = MovieList.getInstance(context.getRealPath("/WEB-INF/movies.txt"));
-        app.initiateSearch(movieList, queryText,hopLimit);
-        return Response.status(Response.Status.OK).entity(Command.SEROK).build();
-    }
-
     @Path("/search")
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
@@ -121,8 +130,8 @@ public class WebService {
     public Response results(@NotNull Result result) {
         int moviesCount = result.getMovies().size();
 
-        String output = String.format("Number of movies: %d\r\nMovies: %s\r\nHops: %d\r\nFound in %s:%d",
-                moviesCount, result.getMovies().toString(), result.getHops(), result.getOwner().getIp(), result.getOwner().getPort());
+        String output = String.format("Number of movies: %d\nMovies: %s\nHops: %d\nFound in %s:%d\nLatency: %s ms",
+                moviesCount, result.getMovies().toString(), result.getHops(), result.getOwner().getIp(), result.getOwner().getPort(), (System.currentTimeMillis() - result.getTimestamp()));
 
         LOGGER.info(output);
         return Response.status(Response.Status.OK).entity("OK").build();
