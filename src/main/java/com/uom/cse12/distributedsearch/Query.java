@@ -52,14 +52,17 @@ public class Query implements Serializable {
 
         Query qry = (Query) o;
 
+        if (timestamp != qry.timestamp) return false;
         if (origin != null ? !origin.equals(qry.origin) : qry.origin != null) return false;
         return queryText != null ? queryText.equals(qry.queryText) : qry.queryText == null;
+
     }
 
     @Override
     public int hashCode() {
         int result = origin != null ? origin.hashCode() : 0;
         result = 31 * result + (queryText != null ? queryText.hashCode() : 0);
+        result = 31 * result + (int) (timestamp ^ (timestamp >>> 32));
         return result;
     }
 

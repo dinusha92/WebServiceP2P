@@ -264,8 +264,6 @@ class App {
             throw new InvalidStateException("App is not registered in the bootstrap server");
         }
 
-        LOGGER.info("cp1");
-
         if (queryList.contains(query)) {
             LOGGER.info("Duplicate query");
             return;
@@ -288,23 +286,16 @@ class App {
         result.setTimestamp(query.getTimestamp());
 
 
-        LOGGER.info("cp2");
         if(query.getHopeLimit()>query.getHops())
-        for (Node peer : neighbours) {
-            if (!peer.equals(sender)&&!peer.equals(query.getOrigin())) {
+            neighbours.stream().filter(peer -> !peer.equals(sender)).forEach(peer -> {
                 post(peer.url() + "search", query);
 
-                LOGGER.info("cp3");
-            }
-        }
-        // Send the results
-            post(query.getOrigin().url() + "results", result);
-
-        LOGGER.info("cp4");
+            });
+         post(query.getOrigin().url() + "results", result);
     }
 
     private void post(final String url, final Object object) {
-        LOGGER.info(url);
+        //LOGGER.info(url);
         new Thread() {
             @Override
             public void run() {
@@ -312,7 +303,7 @@ class App {
                     WebTarget target = ClientBuilder.newClient().target(url);
                     Invocation.Builder builder = target.request(MediaType.APPLICATION_JSON).accept(MediaType.TEXT_PLAIN);
                     Response response = builder.post(Entity.json(object));
-                    LOGGER.info(response.getStatus()+"");
+                    //LOGGER.info(response.getStatus()+"");
                     response.close();
                 } catch (Exception ex) {
                     LOGGER.error("Exception in sending request", ex.getMessage());
