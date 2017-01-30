@@ -10,7 +10,6 @@ public class Query implements Serializable {
     private Node origin;
     private String queryText;
     private int hopeLimit;
-    private int queryIndex;
     private long timestamp;
 
     public int getHops() {
@@ -45,22 +44,16 @@ public class Query implements Serializable {
         this.queryText = queryText;
     }
 
-    public String getQuerryHash(){
-        return (""+origin.getIp()).replace(".","")+origin.getPort()+""+ queryIndex +queryText;
-    }
 
     @Override
     public boolean equals(Object o) {
-//        if (this == o) return true;
-//        if (o == null || getClass() != o.getClass()) return false;
-//
-//        Query qry = (Query) o;
-//
-//        if (origin != null ? !origin.equals(qry.origin) : qry.origin != null) return false;
-//        return queryText != null ? queryText.equals(qry.queryText) : qry.queryText == null;
-        Query qry = (Query) o;
-        return this.getQuerryHash()==qry.getQuerryHash();
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
+        Query qry = (Query) o;
+
+        if (origin != null ? !origin.equals(qry.origin) : qry.origin != null) return false;
+        return queryText != null ? queryText.equals(qry.queryText) : qry.queryText == null;
     }
 
     @Override
@@ -76,14 +69,6 @@ public class Query implements Serializable {
 
     public void setHopeLimit(int hopeLimit) {
         this.hopeLimit = hopeLimit;
-    }
-
-    public int getQueryIndex() {
-        return queryIndex;
-    }
-
-    public void setQueryIndex(int queryIndex) {
-        this.queryIndex = queryIndex;
     }
 
     public long getTimestamp() {

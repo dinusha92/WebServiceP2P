@@ -26,8 +26,6 @@ class App {
 
     private Node currentNode;
 
-    private int queryIndex=0;
-
     private final List<Node> neighbours = new ArrayList<>();
 
     private final List<Query> queryList = new ArrayList<>();
@@ -236,7 +234,6 @@ class App {
         query.setHops(0);
         query.setSender(currentNode);
         query.setHopeLimit(hopLimit);
-        query.setQueryIndex(queryIndex++);
         query.setTimestamp(System.currentTimeMillis());
 
         List<String> results = movieList.search(query.getQueryText());
