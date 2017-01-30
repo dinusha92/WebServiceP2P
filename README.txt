@@ -14,14 +14,14 @@ NOTE : The port number that you've configured in pom.xml is referred as PORT in 
 Connect to the bootstrap
     http://localhost:PORT/connect/{bootstrap_server_ip}/{bootstrap_server_port}/{user_ip}/{username}
 
-List of available movies
-    http://localhost:PORT/movies
-
 Search movies
-    http://localhost:PORT/search/{movie_name}/{hop_count}
+    http://localhost:PORT/search/{movie_name}
 
 Search movies [with hop count]
-    http://localhost:PORT/search/{movie_name}
+    http://localhost:PORT/search/{movie_name}/{hop_count}
+
+List of available movies
+    http://localhost:PORT/movies
 
 Get peers
     http://localhost:PORT/peers
