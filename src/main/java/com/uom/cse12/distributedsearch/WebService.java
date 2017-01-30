@@ -118,6 +118,7 @@ public class WebService {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)
     public Response search(@NotNull @Encoded Query query) {
+        LOGGER.info("post search");
         MovieList movieList = MovieList.getInstance(context.getRealPath("/WEB-INF/movies.txt"));
         app.search(movieList, query);
         return Response.status(Response.Status.OK).entity(Command.SEROK).build();

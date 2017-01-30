@@ -63,12 +63,12 @@ public class Query implements Serializable {
 
     }
 
-//    @Override
-//    public int hashCode() {
-//        int result = origin != null ? origin.hashCode() : 0;
-//        result = 31 * result + (queryText != null ? queryText.hashCode() : 0);
-//        return result;
-//    }
+    @Override
+    public int hashCode() {
+        int result = origin != null ? origin.hashCode() : 0;
+        result = 31 * result + (queryText != null ? queryText.hashCode() : 0);
+        return result;
+    }
 
     public int getHopeLimit() {
         return hopeLimit;
