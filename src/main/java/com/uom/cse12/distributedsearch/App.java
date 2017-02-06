@@ -162,7 +162,7 @@ class App {
 
         latencyArray.add((int) latency);
         hopArray.add(result.getHops());
-        String output = "\n**Result : "+ ++localResultCounter +"  [ Query = "+ localQuery +"]" ;
+        String output = "\n\nq= " +queryPointer+" **Result : "+ ++localResultCounter +"  [ Query = "+ localQuery +"]" ;
         output += String.format("Number of movies: %d\nMovies: %s\nHops: %d\nSender %s:%d\nLatency: %s ms",
                 moviesCount, result.getMovies().toString(), result.getHops(), result.getOwner().getIp(), result.getOwner().getPort(), latency);
         LOGGER.info(output);
