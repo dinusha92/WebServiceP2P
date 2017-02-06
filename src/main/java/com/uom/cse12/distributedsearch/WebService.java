@@ -65,7 +65,6 @@ public class WebService {
     @GET
     @Produces(MediaType.TEXT_PLAIN)
     public Response getStat() {
-        app.clearStats();
         return Response.status(Response.Status.OK).entity(app.getStats().toString()).build();
     }
 
@@ -73,7 +72,26 @@ public class WebService {
     @GET
     @Produces(MediaType.TEXT_PLAIN)
     public Response clearStat() {
+        app.clearStats();
         return Response.status(Response.Status.OK).entity("OK").build();
+    }
+
+    @Path("/query")
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.TEXT_PLAIN)
+    public Response query(@NotNull int noOfNodes) {
+        MovieList movieList = MovieList.getInstance(context.getRealPath("/WEB-INF/movies.txt"));
+        app.remoteQery(context.getRealPath("/WEB-INF/movies.txt"),movieList,noOfNodes);
+        return Response.status(Response.Status.OK).entity("OK").build();
+    }
+
+    @Path("/get-stats")
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.TEXT_PLAIN)
+    public Response getStat(@NotNull int noOfNodes) {
+        return Response.status(Response.Status.OK).entity(app.getStats().getEncodedStat()).build();
     }
 
     @Path("/disconnect")

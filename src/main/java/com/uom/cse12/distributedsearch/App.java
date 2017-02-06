@@ -9,6 +9,8 @@ import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -29,6 +31,10 @@ class App {
     private List<Integer> hopArray = new ArrayList<>();
     private int localResultCounter=0;
     private String localQuery ="";
+    private List<String> LocalQueries=new ArrayList<>();
+    private int queryPointer =0;
+    private  int noOfNodesInTheNetwork =0;
+    MovieList movieList;
 
     private static class InstanceHolder {
         private static App instance = new App();
@@ -153,16 +159,53 @@ class App {
 
         long latency = (System.currentTimeMillis() - result.getTimestamp());
 
-        if(result.getHops()>0) {
-            latencyArray.add((int) latency);
-            hopArray.add(result.getHops());
-        }
-        LOGGER.info("\n**Result : "+ ++localResultCounter +"  [ Query = "+ localQuery +"]" );
-        String output = String.format("Number of movies: %d\nMovies: %s\nHops: %d\nSender %s:%d\nLatency: %s ms",
+
+        latencyArray.add((int) latency);
+        hopArray.add(result.getHops());
+        String output = "\n**Result : "+ ++localResultCounter +"  [ Query = "+ localQuery +"]" ;
+        output += String.format("Number of movies: %d\nMovies: %s\nHops: %d\nSender %s:%d\nLatency: %s ms",
                 moviesCount, result.getMovies().toString(), result.getHops(), result.getOwner().getIp(), result.getOwner().getPort(), latency);
         LOGGER.info(output);
+
+        if(localResultCounter==noOfNodesInTheNetwork&&LocalQueries.size()>queryPointer){
+            startQurey(LocalQueries.get(queryPointer++),movieList);
+        }else if(LocalQueries.size()<=queryPointer){
+            System.out.println("****Searching completed!****");
+        }
+    }
+    void startQurey(String qry,MovieList ml){
+        new Thread() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(1000);
+                    initiateSearch(ml,qry,999999);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }.start();
     }
 
+    void remoteQery(String file,MovieList ml,int nodes){
+        movieList = ml;
+        LocalQueries=new ArrayList<>();
+        noOfNodesInTheNetwork = nodes;
+        queryPointer =0;
+
+        String fileName = file;
+        try {
+            Scanner scanner = new Scanner(new File(fileName));
+            while (scanner.hasNextLine()) {
+                LocalQueries.add(scanner.nextLine().trim().toLowerCase().replace(" ","_"));
+            }
+        } catch (FileNotFoundException e) {
+            System.out.println(e.getMessage());
+        }
+        //initiateSearch(tokenizer.nextToken());
+        if(LocalQueries.size()>0)
+            startQurey(LocalQueries.get(queryPointer++),ml);
+    }
     synchronized boolean disconnect() {
 
         if (Objects.isNull(currentNode)) {
@@ -269,6 +312,7 @@ class App {
                     post(peer.url() + "search", query);
             }
 
+            LOGGER.info("sent stats to "+query.getOrigin());
             post(query.getOrigin().url() + "results", result);
 
     }
@@ -326,15 +370,29 @@ class App {
             stat.setLatencySD(getSD(latencyArray.toArray(), avg));
             stat.setNumberOfLatencies(latencyArray.size());
 
+            String latencies="";
+            for (int latency: latencyArray){
+                latencies+=latency+",";
+            }
+            stat.setLatencies(latencies);
+
+
             avg = hopArray.stream().mapToLong(val -> val).average().getAsDouble();
             stat.setHopsMax(Collections.max(hopArray));
             stat.setHopsMin(Collections.min(hopArray));
             stat.setHopsAverage(avg);
             stat.setHopsSD(getSD(hopArray.toArray(), avg));
             stat.setNumberOfHope(hopArray.size());
+            String hops="";
+            for (int hop: hopArray){
+                hops+=hop+",";
+            }
+            stat.setHops(hops);
+
         }
         return stat;
     }
+
 
 
     void clearStats(){
