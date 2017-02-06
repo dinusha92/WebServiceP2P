@@ -19,16 +19,16 @@ import java.util.*;
 class App {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(App.class);
-
     private String bootstrapHost;
-
     private int bootstrapPort;
-
     private Node currentNode;
-
     private final List<Node> neighbours = new ArrayList<>();
-
     private final List<Query> queryList = new ArrayList<>();
+    int receivedMessages, sentMessages, unAnsweredMessages;
+    private List<Integer> latencyArray = new ArrayList<>();
+    private List<Integer> hopArray = new ArrayList<>();
+    private int localResultCounter=0;
+    private String localQuery ="";
 
     private static class InstanceHolder {
         private static App instance = new App();
@@ -44,7 +44,7 @@ class App {
     synchronized boolean connect(String serverIP, int serverPort, String nodeIP, int port, String username) {
         // Validate
         if (Objects.isNull(serverIP)) {
-            throw new IllegalArgumentException("Bootsrap IP is null");
+            throw new IllegalArgumentException("Bootstrap IP is null");
         }
         if (Objects.isNull(nodeIP)) {
             throw new IllegalArgumentException("Node IP is null");
@@ -85,9 +85,9 @@ class App {
                         int portNumber = Integer.parseInt(tokenizer.nextToken());
 
 
-                        Node nodeInfo = new Node(ipAddress, portNumber);
-                        join(nodeInfo);
-                        post(nodeInfo.url() + "join", new Node(nodeIP, port));
+                        Node node = new Node(ipAddress, portNumber);
+                        join(node);
+                        post(node.url() + "join", new Node(nodeIP, port));
                         break;
 
                     case 2:
@@ -98,8 +98,8 @@ class App {
 
                             LOGGER.debug(String.format("%s:%s ", host, hostPost));
 
-                            Node node = new Node(host, Integer.parseInt(hostPost));
-                            returnedNodes.add(node);
+                            Node temp = new Node(host, Integer.parseInt(hostPost));
+                            returnedNodes.add(temp);
                         }
 
                         Collections.shuffle(returnedNodes);
@@ -148,6 +148,20 @@ class App {
         }
     }
 
+    void onResultReceived(Result result){
+        int moviesCount = result.getMovies().size();
+
+        long latency = (System.currentTimeMillis() - result.getTimestamp());
+
+        if(result.getHops()>0) {
+            latencyArray.add((int) latency);
+            hopArray.add(result.getHops());
+        }
+        LOGGER.info("\n**Result : "+ ++localResultCounter +"  [ Query = "+ localQuery +"]" );
+        String output = String.format("Number of movies: %d\nMovies: %s\nHops: %d\nSender %s:%d\nLatency: %s ms",
+                moviesCount, result.getMovies().toString(), result.getHops(), result.getOwner().getIp(), result.getOwner().getPort(), latency);
+        LOGGER.info(output);
+    }
 
     synchronized boolean disconnect() {
 
@@ -189,10 +203,10 @@ class App {
         }
         return false;
     }
-    synchronized void join(Node info) {
+    synchronized void join(Node node) {
 
-        if (!neighbours.contains(info)) {
-            neighbours.add(info);
+        if (!neighbours.contains(node)) {
+            neighbours.add(node);
         }
     }
 
@@ -204,13 +218,13 @@ class App {
         return neighbours;
     }
 
-    synchronized void leave(Node info) {
+    synchronized void leave(Node node) {
 
         if (Objects.isNull(currentNode)) {
             throw new InvalidStateException("Node is not in the bootstrap");
         }
 
-        neighbours.remove(info);
+        neighbours.remove(node);
     }
 
 
@@ -227,6 +241,8 @@ class App {
             throw new InvalidStateException("Node is not registered in the bootstrap server");
         }
 
+        localResultCounter=0;
+        localQuery = name;
 
         Query query = new Query();
         query.setOrigin(currentNode);
@@ -267,7 +283,7 @@ class App {
         }
 
         if (queryList.contains(query)) {
-            LOGGER.info("Duplicate query");
+            unAnsweredMessages++;
             return;
         } else {
             queryList.add(query);
@@ -296,6 +312,52 @@ class App {
          post(query.getOrigin().url() + "results", result);
     }
 
+    Stat getStats(){
+        Stat stat = new Stat();
+        stat.setAnsweredMessages(receivedMessages- unAnsweredMessages);
+        stat.setSentMessages(sentMessages);
+        stat.setReceivedMessages(receivedMessages);
+        stat.setNodeDegree(neighbours.size());
+        if(latencyArray.size()>0){
+            double avg = latencyArray.stream().mapToLong(val -> val).average().getAsDouble();
+            stat.setLatencyMax(Collections.max(latencyArray));
+            stat.setLatencyMin(Collections.min(latencyArray));
+            stat.setLatencyAverage(avg);
+            stat.setLatencySD(getSD(latencyArray.toArray(), avg));
+            stat.setNumberOfLatencies(latencyArray.size());
+
+            avg = hopArray.stream().mapToLong(val -> val).average().getAsDouble();
+            stat.setHopsMax(Collections.max(hopArray));
+            stat.setHopsMin(Collections.min(hopArray));
+            stat.setHopsAverage(avg);
+            stat.setHopsSD(getSD(hopArray.toArray(), avg));
+            stat.setNumberOfHope(hopArray.size());
+        }
+        return stat;
+    }
+
+
+    void clearStats(){
+        receivedMessages=0;
+        sentMessages= 0;
+        unAnsweredMessages = 0;
+        latencyArray= new ArrayList<>();
+        hopArray = new ArrayList<>();
+    }
+
+    private double getSD(Object[] latency, double mean){
+        double variance = 0, sd =0;
+        double [] temp =  new double[latency.length];
+        for (int i = 0; i < latency.length; i++) {
+            temp[i] = (double)(Integer)latency[i] - mean;
+            temp[i] = Math.pow(temp[i], 2); //to get the (x-average)2
+            variance += temp[i];
+        }
+        variance = variance / (latency.length-1); // sample variance
+        sd = Math.sqrt(variance);
+        return sd;
+    }
+
     private void post(final String url, final Object object) {
         //LOGGER.info(url);
         new Thread() {
@@ -307,6 +369,7 @@ class App {
                     Response response = builder.post(Entity.json(object));
                     //LOGGER.info(response.getStatus()+"");
                     response.close();
+                    sentMessages++;
                 } catch (Exception ex) {
                     LOGGER.error("Exception in sending request", ex.getMessage());
                 }
@@ -327,7 +390,7 @@ class App {
 
         byte[] data = response.getData();
         String msg = new String(data, 0, response.getLength());
-        LOGGER.info("Recieved :" + msg);
+        LOGGER.info("Received :" + msg);
         return msg;
     }
 

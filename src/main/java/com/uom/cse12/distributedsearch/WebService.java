@@ -61,6 +61,21 @@ public class WebService {
         return Response.status(Response.Status.OK).entity(Command.SEROK).build();
     }
 
+    @Path("/stat")
+    @GET
+    @Produces(MediaType.TEXT_PLAIN)
+    public Response getStat() {
+        app.clearStats();
+        return Response.status(Response.Status.OK).entity(app.getStats().toString()).build();
+    }
+
+    @Path("/clear-stat")
+    @GET
+    @Produces(MediaType.TEXT_PLAIN)
+    public Response clearStat() {
+        return Response.status(Response.Status.OK).entity("OK").build();
+    }
+
     @Path("/disconnect")
     @GET
     @Produces(MediaType.TEXT_PLAIN)
@@ -77,7 +92,6 @@ public class WebService {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response listMovies() {
-        LOGGER.debug("Request to list the selected movies");
         MovieList movieList = MovieList.getInstance(context.getRealPath("/WEB-INF/movies.txt"));
         return Response.status(Response.Status.OK).entity(movieList.getSelectedMovies()).build();
     }
@@ -86,10 +100,7 @@ public class WebService {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response listPeers() {
-        LOGGER.debug("Request to list the connected peers");
         List<Node> lst = app.getPeers();
-        LOGGER.debug("PEERS {}", lst.toString());
-        LOGGER.info("PEERS {}", lst.toString());
         return Response.status(Response.Status.OK).entity(lst).build();
     }
 
@@ -98,7 +109,6 @@ public class WebService {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)
     public Response join(@NotNull Node node) {
-        LOGGER.debug("Request to join from {}", node);
         app.join(node);
         return Response.status(Response.Status.OK).entity(Command.JOINOK).build();
     }
@@ -108,7 +118,6 @@ public class WebService {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)
     public Response leave(@NotNull Node node) {
-        LOGGER.debug("Request to leave from {}", node);
         app.leave(node);
         return Response.status(Response.Status.OK).entity(Command.LEAVEOK).build();
     }
@@ -118,6 +127,7 @@ public class WebService {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)
     public Response search(@NotNull @Encoded Query query) {
+        app.receivedMessages++;
         MovieList movieList = MovieList.getInstance(context.getRealPath("/WEB-INF/movies.txt"));
         app.search(movieList, query);
         return Response.status(Response.Status.OK).entity(Command.SEROK).build();
@@ -128,12 +138,8 @@ public class WebService {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)
     public Response results(@NotNull Result result) {
-        int moviesCount = result.getMovies().size();
-
-        String output = String.format("Number of movies: %d\nMovies: %s\nHops: %d\nSender %s:%d\nLatency: %s ms",
-                moviesCount, result.getMovies().toString(), result.getHops(), result.getOwner().getIp(), result.getOwner().getPort(), (System.currentTimeMillis() - result.getTimestamp()));
-
-        LOGGER.info(output);
+        app.receivedMessages++;
+        app.onResultReceived(result);
         return Response.status(Response.Status.OK).entity("OK").build();
     }
 }

@@ -29,4 +29,9 @@ Get peers
 Disconnect the node
     http://localhost:PORT/disconnect
 
+Get stats
+    http://localhost:PORT/stat
+
+Clear stats
+    http://localhost:PORT/clear-stat
 
