@@ -73,6 +73,7 @@ public class WebService {
     @Produces(MediaType.TEXT_PLAIN)
     public Response clearStat() {
         app.clearStats();
+        LOGGER.info("\n\nCleared!");
         return Response.status(Response.Status.OK).entity("OK").build();
     }
 

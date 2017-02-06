@@ -312,7 +312,7 @@ class App {
                     post(peer.url() + "search", query);
             }
 
-            LOGGER.info("sent stats to "+query.getOrigin());
+
             post(query.getOrigin().url() + "results", result);
 
     }
@@ -353,6 +353,8 @@ class App {
                 post(peer.url() + "search", query);
 
             });
+
+        LOGGER.info("\n\n*sent stats to "+query.getOrigin());
          post(query.getOrigin().url() + "results", result);
     }
 

@@ -200,7 +200,7 @@ public class RemoteWebServiceQueryHandler {
                             WebTarget target = ClientBuilder.newClient().target(url);
                             Invocation.Builder builder = target.request(MediaType.APPLICATION_JSON).accept(MediaType.TEXT_PLAIN);
                             Response response = builder.post(Entity.json(nodeList.size()));
-                            s =response.getEntity().toString();
+                            s =response.readEntity(String.class);
                             //LOGGER.info(response.getStatus()+"");
                             response.close();
 
@@ -208,11 +208,11 @@ public class RemoteWebServiceQueryHandler {
 //                            s = new String(data, 0, incoming.getLength());
                             System.out.println(s);
 
-                            StringTokenizer tokenizer = new StringTokenizer(s, " ");
-                            int count = Integer.parseInt(tokenizer.nextToken());
-                            String command = tokenizer.nextToken();
+//                            StringTokenizer tokenizer = new StringTokenizer(s, " ");
+//                            int count = Integer.parseInt(tokenizer.nextToken());
+//                            String command = tokenizer.nextToken();
 
-                            Stat stat = new Stat(tokenizer.nextToken());
+                            Stat stat = new Stat(s);
                             hops += stat.getHops();
                             latencies += stat.getLatencies();
                             received_stat.add(stat.getReceivedMessages());
