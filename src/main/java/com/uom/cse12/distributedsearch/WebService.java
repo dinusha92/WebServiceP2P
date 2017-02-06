@@ -82,7 +82,7 @@ public class WebService {
     @Produces(MediaType.TEXT_PLAIN)
     public Response query(@NotNull int noOfNodes) {
         MovieList movieList = MovieList.getInstance(context.getRealPath("/WEB-INF/movies.txt"));
-        app.remoteQery(context.getRealPath("/WEB-INF/movies.txt"),movieList,noOfNodes);
+        app.remoteQery(context.getRealPath("/WEB-INF/Queries.txt"),movieList,noOfNodes);
         return Response.status(Response.Status.OK).entity("OK").build();
     }
 
