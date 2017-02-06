@@ -90,7 +90,7 @@ public class WebService {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)
-    public Response getStat(@NotNull int noOfNodes) {
+    public Response getRemoteStat() {
         return Response.status(Response.Status.OK).entity(app.getStats().getEncodedStat()).build();
     }
 
