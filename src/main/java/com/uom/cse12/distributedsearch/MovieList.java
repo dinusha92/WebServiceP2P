@@ -35,16 +35,23 @@ public class MovieList {
     public List<String> search(String query) {
         List<String> list = new ArrayList<String>();
 
+        String temp = null;
+        String tempQuery = null;
+
+        tempQuery = "_" + query.toLowerCase().replaceAll(" ", "_")+"_";
         if (query != null && !query.trim().equals("")) {
-            query = query.toLowerCase();
+
             for (String movie : movies) {
-                if (movie.toLowerCase().contains(query)) {
-                    list.add(movie.replaceAll(" ", "_"));
+                temp = "_"+movie.toLowerCase().replaceAll(" ","_")+"_";
+                if (temp.contains(tempQuery)) {
+                    // Remove the spaces
+                    list.add(movie.replaceAll(" ","_"));
                 }
             }
         }
         return list;
     }
+
 
     private List<String> selectMovies(String fileName) {
         List<String> list = new ArrayList<>();
