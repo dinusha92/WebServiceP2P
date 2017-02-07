@@ -162,16 +162,18 @@ class App {
 
         latencyArray.add((int) latency);
         hopArray.add(result.getHops());
-        String output = "\n\nq= " +queryPointer+" **Result : "+ ++localResultCounter +"  [ Query = "+ localQuery +"]" ;
+        String output = " **Result : "+ ++localResultCounter +"  [ Query = "+ localQuery +"]" ;
         output += String.format("Number of movies: %d\nMovies: %s\nHops: %d\nSender %s:%d\nLatency: %s ms",
                 moviesCount, result.getMovies().toString(), result.getHops(), result.getOwner().getIp(), result.getOwner().getPort(), latency);
         LOGGER.info(output);
 
-        if(localResultCounter==noOfNodesInTheNetwork&&LocalQueries.size()>queryPointer){
-            startQurey(LocalQueries.get(queryPointer++),movieList);
-        }else if(LocalQueries.size()<=queryPointer){
-            System.out.println("****Searching completed!****");
-        }
+        //Following code is for query automation: Execute next query automatically once the results are received
+
+//        if(localResultCounter==noOfNodesInTheNetwork&&LocalQueries.size()>queryPointer){
+//            startQurey(LocalQueries.get(queryPointer++),movieList);
+//        }else if(LocalQueries.size()<=queryPointer){
+//            System.out.println("****Searching completed!****");
+//        }
     }
     void startQurey(String qry,MovieList ml){
         new Thread() {
